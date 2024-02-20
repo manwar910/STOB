@@ -1,0 +1,8 @@
+﻿
+@model List<string>
+
+@foreach (var d in Model)
+{    
+    <a class="dropdown-item" href="@Url.Action("Rep_NominationsListByDept", "Home", new {dept = d})">@d</a>
+}
+

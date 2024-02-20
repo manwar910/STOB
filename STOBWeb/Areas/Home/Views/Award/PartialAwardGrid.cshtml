@@ -1,0 +1,59 @@
+﻿@using STOBDataLayer.Models;
+@model IEnumerable<Awards>
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="table-responsive">
+    <table id="tblrecord" class="table table-hover">
+        <thead>
+            <tr class="bg-gray-light">
+                <th class="text-left">Title</th>
+                <th class="text-left">Type</th>
+                <th class="text-left">Description</th>
+                <th style="min-width: 200px!important;width:200px!important;" class="text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ev in Model.ToList())
+            {
+            <tr id="row_@ev.AWARD_ID">
+                <td class="text-left">@ev.AWARD_NM</td>
+                <td class="text-left">@ev.AWARD_TYPE</td>
+                <td class="text-left">@ev.AWARD_DESC</td>
+                <td class="text-center">
+                    <a href="@Url.Action("Edit", "Award", new { Id = ev.AWARD_ID })" class="btn btn-warning btn-sm"><i class="fa fa-pencil"></i> Edit</a>
+                    <button type="button" data-url="@Url.Action("Delete","Award", new {Id = ev.AWARD_ID})"
+                            data-ret="@Url.Action("Add","Award")" class="btn btn-danger btn-sm  btnDelete">
+                        <i class="fa fa-trash"></i> Delete
+                    </button>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+
+    $('.btnDelete').click(function (e) {
+        var url_to_return = $(this).data('ret');
+        var url_to_delete = $(this).data('url');
+
+        $(this).prop('disabled', true);
+        $(this).html("<i class='fa fa-spinner fa-pulse'/></i>");
+
+        $.ajax({
+            type: "post",
+            url: url_to_delete,
+            success: function (data) {
+                window.location.href = url_to_return;
+            },
+            error: function (xhr, err) {
+                var jsonResp = jQuery.parseJSON(xhr.responseText);
+                alert(xhr.status + ' : ' + jsonResp.Message);
+            }
+        });
+    });
+
+</script>

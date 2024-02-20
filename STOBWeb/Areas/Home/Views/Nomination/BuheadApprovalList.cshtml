@@ -1,0 +1,384 @@
+﻿@using STOBDataLayer.ViewModels;
+@model IEnumerable<BuHeadNominationsVM>
+@{
+    ViewBag.Title = "BuheadApprovalList";
+    Layout = "~/Areas/Home/Views/Shared/_LayoutDashbord.cshtml";
+}
+
+<link href="~/Content/toastr.css" rel="stylesheet" />
+<script src="~/Scripts/toastr.min.js"></script>
+
+<input type="hidden" id="hiddenregistrationid" />
+
+<div class="heading">
+    <div class="headingIcon">
+        <i class="fa fa-list p-2"></i>
+    </div>
+    <div class="headingText">
+        Nomination List (@ViewBag.user)
+    </div>
+</div>
+
+<div class="row pb-4">
+    <div class="col-12">
+        <div class="btn-group float-right">
+            <button type="button" class="btn ml-2 btn-sm btn-default shadow dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-print text-sm text-green"></i> Report By Award Type
+            </button>
+            <div class="dropdown-menu" id="partialDepartments">
+                <a class="dropdown-item" href="@Url.Action("Rep_NominationsByType", "Home", new {type="Individual", page="BuHead"})">Individual</a>
+                <a class="dropdown-item" href="@Url.Action("Rep_NominationsByType", "Home", new {type = "Team", page="BuHead"})">Team</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pb-5">
+    <table id="tblrecord" class="table table-sm table-hover table-valign-middle pb-4 pt-2" style="width:100%!important;">
+        <thead>
+            <tr>
+                <th class="bg-light">Nominees</th>
+                <th>Nominator</th>
+                <th>Award</th>
+                <th>Created On</th>
+                <th>Current Status</th>
+                <th class="text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var n in Model)
+            {
+                var nomLastStatus = n.Nomination.NominationStatuses.LastOrDefault();
+
+                <tr id="row_@n.Nomination.NOMN_ID">
+                    <td class="bg-light">
+                        <div class="btn-group dropdown">
+                            <button class="dropdown-toggle btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="window">
+                                Detail
+                            </button>
+
+                            <div class="dropdown-menu p-4" style="min-width: 250px !important;">
+                                <table class="table table-sm table-hover">
+                                    <tr class="bg-light">
+                                        <th>Nominee</th>
+                                        <th>Title</th>
+                                        <th>Department</th>
+                                        <th>Exemption</th>
+                                        <th>Email</th>
+                                    </tr>
+                                    @foreach (var nominee in n.Nominees)
+                                    {
+                                        <tr>
+                                            <td>@nominee.FIRST_NM @nominee.LAST_NM</td>
+                                            <td>@nominee.TITLE_TXT</td>
+                                            <td>@nominee.BU_Dept</td>
+                                            <td>@nominee.EXEMPT_CD</td>
+                                            <td>@nominee.EMAIL</td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@n.Nomination.NOMNR_NM <span class="d-block text-xs text-muted" style="margin-top:-5px;">@n.Nomination.NOMNR_BU_DEPT</span></td>
+
+                    <td>@n.Nomination.Award.AWARD_NM <span class="d-block text-xs text-muted" style="margin-top:-5px;">@n.Nomination.Award.AWARD_TYPE</span></td>
+                    <td>@n.Nomination.NOMN_DT.ToShortDateString()</td>
+                    <td>
+                        @{
+                            if (nomLastStatus.STAT_ID == 1)     //Drafted
+                            {
+                                <i class="fa fa-exclamation text-info"></i> <span> @nomLastStatus.Status.STAT_TXT</span>
+                            }
+                            else if (nomLastStatus.STAT_ID == 2)    //Submitted
+                            {
+                                <i class="fa fa-paper-plane text-primary"></i> <span> @nomLastStatus.Status.STAT_TXT</span>
+                            }
+                            else if (nomLastStatus.STAT_ID == 3)    //SentForReview
+                            {
+                                <i class="fa fa-refresh text-primary"></i> <span> @nomLastStatus.Status.STAT_TXT</span>
+                            }
+                            else if (nomLastStatus.STAT_ID == 4)    //Modified
+                            {
+                                <i class="fa fa-edit text-success"></i> <span> @nomLastStatus.Status.STAT_TXT</span>
+                            }
+                            else if (nomLastStatus.STAT_ID == 5)    //BuApproved
+                            {
+                                <i class="fa fa-check text-success"></i> <span> @nomLastStatus.Status.STAT_TXT</span>
+                            }
+                            else if (nomLastStatus.STAT_ID == 6)    //AdmApproved
+                            {
+                                <i class="fa fa-check-circle text-success"></i> <span> @nomLastStatus.Status.STAT_TXT</span>
+                            }
+                            else if (nomLastStatus.STAT_ID == 7)    //Rejected
+                            {
+                                <i class="fa fa-ban text-danger"></i>
+                                <span> @nomLastStatus.Status.STAT_TXT</span>
+                                <button class="btn btn-default rounded-pill shadow-sm btn-sm float-right mr-3 btnReason" data-reason="@nomLastStatus.COMMENT" data-target="#reasonModal" data-toggle="modal">
+                                    <i class="fa fa-question text-success"></i>
+                                </button>
+                            }
+                        }
+                        <span class="d-block text-xs text-muted" style="margin-top:-5px;">@nomLastStatus.BY</span>
+                    </td>
+                    <td class="text-center">
+                        @if (nomLastStatus.STAT_ID < 5)
+                        {
+                            if (nomLastStatus.STAT_ID != 3)
+                            {
+                                <a href="@Url.Action("EditByHead", "Nomination", new { type=n.Nomination.Award.AWARD_TYPE, NominationId = n.Nomination.NOMN_ID, by="BuHead" })" class="btn btn-warning text-white btn-sm mb-1" title="Edit"><i class="fa fa-pencil"></i> </a>
+
+                                if (ViewBag.toggleNominations == true)
+                                {
+                                    <button data-href="@Url.Action("ApproveByBuHead", "Nomination", new { NominationId = n.Nomination.NOMN_ID })"
+                                            class="btnApp btn btn-success btn-sm mb-1" title="Approve">
+                                        <i class="fa fa-check"></i>
+                                    </button>
+
+                                    <button data-href="@Url.Action("RejectByBuHead", "Nomination", new { NominationId = n.Nomination.NOMN_ID })"
+                                            class="btnRej btn btn-danger btn-sm mb-1" title="Reject" data-target="#rejectModal" data-toggle="modal">
+                                        <i class="fa fa-ban"></i>
+                                    </button>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("EditByHead", "Nomination", new { type=n.Nomination.Award.AWARD_TYPE, NominationId = n.Nomination.NOMN_ID, by="BuHead" })" class="btn btn-warning text-white btn-sm mb-1" title="Edit"><i class="fa fa-pencil"></i> </a>
+                            @*if (nomLastStatus.STAT_ID == 5)
+                            {
+                                <button data-href="@Url.Action("SendEmailToApprovedNominees", "Nomination", new { NominationId = n.NOMN_ID })"
+                                        class="btnEmail btn btn-success btn-sm mb-1" title="Send Mail" data-target="#emailModal" data-toggle="modal">
+                                    <i class="fa fa-envelope"></i>
+                                </button>
+                            }*@
+
+                            if (nomLastStatus.STAT_ID == 6 || nomLastStatus.STAT_ID == 5)
+                            {
+                                <button data-href="@Url.Action("RejectByBuHead", "Nomination", new { NominationId = n.Nomination.NOMN_ID })"
+                                        class="btnRej btn btn-danger btn-sm mb-1" title="Reject" data-target="#rejectModal" data-toggle="modal">
+                                    <i class="fa fa-ban"></i>
+                                </button>
+                            }
+                            if (nomLastStatus.STAT_ID == 7)
+                            {
+                                <button data-href="@Url.Action("ApproveByBuHead", "Nomination", new { NominationId = n.Nomination.NOMN_ID })"
+                                        class="btnApp btn btn-success btn-sm mb-1" title="Approve">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                            }
+
+                        }
+
+                        <a href="@Url.Action("Rep_BUNomination", "Nomination", new { NominationId = n.Nomination.NOMN_ID })" class="btn btn-default btn-sm mb-1" title="Print"> <i class="fa fa-print text-green"></i> </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Write your message.</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="txtEmail" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" type="button" class="btn btn-default">Cancel</button>
+                <button data-dismiss="modal" id="btnSendMail" type="button" class="btn btn-primary">Send Mail</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h4 class="modal-title">Confirmation!</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <h3 class="text-danger p-2">Do you realy want to reject this nomination?</h3>
+                    @*<textarea class="form-control editorHtml" maxlength="100" , spellcheck="true" rows="6" id="txtReasonReject"></textarea>
+                        <span class="invalid" id="lblReasonError"></span>*@
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" type="button" class="btn btn-default">Cancel</button>
+                <button data-dismiss="modal" id="btnContinueReject" type="button" class="btn btn-danger">Reject</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reasonModal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Reason of Rejection</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <span id="txtReasonView">
+
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('.btnReason').on('click', function () {
+                var reason = $(this).data('reason');
+                $(".modal-body #txtReasonView").html(reason);
+            });
+            var url = "";
+            var btn = "";
+
+            $('.btnEmail').on('click', function () {
+                debugger
+                url = $(this).data('href');
+                debugger
+            });
+            $('#btnSendMail').on('click', function () {
+                var message = $('#txtEmail').val();
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: { 'message': message },
+                    cache: false,
+                    success: function (data) {
+                        window.location.href = data.url;
+                    },
+                    error: function () {
+                        alert("Error occured..!!");
+                    }
+                });
+            });
+
+
+            $('.btnApp').on('click', function () {
+                url = $(this).data('href');
+                btn = $(this);
+                appRej(url, btn);
+            });
+
+            $('.btnRej').on('click', function () {
+                url = $(this).data('href');
+                btn = $(this);
+            });
+            var isValidReason = function (txtReason) {
+                if (txtReason.val().length < 1) {
+                    $('#lblReasonError').text("Reason is required.").addClass("text-sm text-danger");
+                    txtReason.focus();
+                    return false;
+                } else {
+                    $('#lblReasonError').text("");
+                    return true;
+                }
+            };
+            $('#txtReasonReject').on('input blur', function () {
+                isValidReason($(this));
+            });
+
+            $('#btnContinueReject').on('click', function () {
+                //var txtReject = $('#txtReasonReject');
+                //if (!isValidReason(txtReject))
+                //    return false;
+                appRej(url, btn);
+            });
+            var appRej = function (url, btn) {
+                var btnOldHtml = btn.html();
+                var btnNewHtml = "<i class='fa fa-spinner fa-pulse'/></i>";
+                var reason = "Conversation has been held with nominator.";
+                $(document).ajaxStart(function () {
+                    btn.prop('disabled', true);
+                    btn.html(btnNewHtml);
+                });
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: { 'reason': reason },
+                    cache: false,
+                    success: function (response) {
+                        window.location.href = response.redirectToUrl;
+                    },
+                    error: function () {
+                        alert("Error occured..!!");
+                    },
+                    complete: function () {
+                        //btn.prop('disabled', false);
+                        btn.html(btnOldHtml);
+                    },
+                });
+            };
+
+
+
+            $(function () {
+                var table = $('#tblrecord').DataTable({
+                    'responsive': true,
+                    "order": [[3, 'desc']],
+                    "columnDefs": [{
+                        "targets": [0, 5],
+                        "orderable": false
+                    }]
+                });
+            });
+
+        });
+    </script>
+
+    @if (TempData["UpdatedMessage"] != null)
+    {
+        <script type="text/javascript">
+               toastr.success("@TempData["UpdatedMessage"]");
+        </script>
+    }
+    else if (TempData["ReviewSuccess"] != null)
+    {
+        <script type="text/javascript">
+               toastr.success("@TempData["ReviewSuccess"]");
+        </script>
+    }
+    else if (TempData["SubmitMessage"] != null)
+    {
+        <script type="text/javascript">
+               toastr.success("@TempData["SubmitMessage"]");
+        </script>
+    }
+    else if (TempData["RejectMessage"] != null)
+    {
+        <script type="text/javascript">
+               toastr.success("@TempData["RejectMessage"]");
+        </script>
+    }
+    else if (TempData["ApproveMessage"] != null)
+    {
+        <script type="text/javascript">
+               toastr.success("@TempData["ApproveMessage"]");
+        </script>
+    }
+    else if (TempData["EmailSuccess"] != null)
+    {
+        <script type="text/javascript">
+               toastr.success("@TempData["EmailSuccess"]");
+        </script>
+    }
+
+}
+

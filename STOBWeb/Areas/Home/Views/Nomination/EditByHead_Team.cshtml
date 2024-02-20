@@ -1,0 +1,346 @@
+﻿@using STOBDataLayer.ViewModels
+@model NominationVM
+@{
+    ViewBag.Title = "Edit Team Nomination";
+    Layout = "~/Areas/Home/Views/Shared/_LayoutDashbord.cshtml";
+}
+
+<div class="heading">
+    <div class="headingIcon">
+        <i class="fa fa-pencil p-2"></i>
+    </div>
+    <div class="headingText">
+        Edit Nomination
+    </div>
+</div>
+
+<form id="frmNomination">
+    <div asp-validatioin-summary="All" class="text-danger"></div>
+    @Html.HiddenFor(m => m.ExistingTEAM_NM)
+    @Html.HiddenFor(m => m.NOMN_ID, new { id = "hdnNominationId" })
+    @Html.HiddenFor(m => m.NOMNR_NM)
+    @Html.HiddenFor(m => m.STAT_ID, new { id = "hdnNomStateId" })
+
+    <div class="row justify-content-between mb-4">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="labelRequired">Select Award </label>
+                @Html.DropDownListFor(m => m.AWARD_ID, ViewBag.AwardList as List<SelectListItem>, new { @class = "form-control", id = "ddlAwardId" })
+                <span class="invalid" id="lblAwardError" style="display:none">Please Select an Award !!</span>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="form-group" id="Description">
+                <label>Award Description </label>
+                <div class="card shadow-none">
+                    <div class="card-body p-0" id="txtDescription">
+                        <span>@Model.Award_Description</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-4" id="teamForm">
+        <div class="card-body bg-light">
+            <div class="row">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Team Name </label>
+                        @Html.TextBoxFor(m => m.TEAM_NM, new { @class = "form-control requiredTeam", id = "txtTeamName" })
+                        @Html.ValidationMessageFor(m => m.TEAM_NM, null, new { @class = "form-text invalid errorLabel" })
+                    </div>
+                </div>
+
+                <div class="col-12 mb-4">
+                    <div class="form-group">
+                        @if (ViewBag.by == "BuHead")
+                        {
+                            @Html.ListBoxFor(m => m.NomineeIds, ViewBag.EmployeesMulti as List<SelectListItem>, new { @class = "form-control requiredTeam", id = "ddlNomineesDual", placeholder = "Choose nominees", @readonly = "readonly", disabled = "disabled" })
+                            <span class="invalid errorLabel"></span>
+                        }
+                        else
+                        {
+                            @Html.ListBoxFor(m => m.NomineeIds, ViewBag.EmployeesMulti as List<SelectListItem>, new { @class = "form-control requiredTeam", id = "ddlNomineesDual", placeholder = "Choose nominees" })
+                            <span class="invalid errorLabel"></span>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="control-label">Reason for Nomination </label>
+                        @if (ViewBag.by == "BuHead")
+                        {
+                            <textarea readonly="readonly" disabled="disabled" class="form-control" id="txtReason">@Model.REASON</textarea>
+                        }
+                        else
+                        {
+                            <textarea class="form-control" id="txtReason">@Model.REASON</textarea>
+                            <span class="invalid" id="lblReasonError"></span>
+                        }
+
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="labelRequired">Add Comment </label>
+                        @Html.TextAreaFor(m => m.COMMENT, new { @class = "form-control editorHtml ", spellcheck = "true", maxlength = "100", rows = "6", id = "txtComment" })
+                        <span class="invalid" id="lblCommentsError"></span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row mt-2 mb-2">
+                <div class="col">
+                    <div class="form-group float-right">
+                        <button type="button" onclick="Update()" class="btn btn-success btnSubmit"><i class="fa fa-save"></i> Update</button>
+                        <button type="button" class="btn btn-success btnReview"> <i class="fa fa-refresh"></i> Send for Review</button>
+                        @if (ViewBag.by == "BuHead")
+                        {
+                            <a href="@Url.Action("BuheadApprovalList", "Nomination")" class="btn btn-default"><i class="fa fa-times"></i> Cancel</a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-default"><i class="fa fa-times"></i> Cancel</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+<script type="text/javascript">
+
+    CKEDITOR.replace("txtReason");
+    var editor = CKEDITOR.instances['txtReason'];
+
+    function isValid(comment, typeClass, label) {
+        var charLimit = 3700;
+        var valid = true;
+        var commentLines = comment.split("\n").length / 2;
+        for (var i = 1; i < commentLines; i++)
+            charLimit = charLimit - 100;
+
+        //For CKEDITOR
+        if (comment.length == 0) {
+            $('#' + label).text("Please fill out this field").addClass("text-danger font-weight-normal");
+            valid = false;
+        } else if (comment.length > charLimit) {
+            $('#' + label).text("You have reached the maximum character limit. Please, delete some text.");
+            valid = false;
+        } else if (commentLines > 47) {
+            $('#' + label).text("You have reached a limit of 47 lines. Delete some text.");
+            valid = false;
+        } else if (comment.length > 0 && comment.length <= charLimit && commentLines <= 47) {
+            $('#' + label).text("");
+            valid = true;
+        }
+        //For select and duallistbox
+        if (typeClass != "") {
+            $("." + typeClass).each(function () {
+                var errorLabel = $(this).closest('.form-group').find('.errorLabel');
+                var item = $(this).val();
+                if (item == null || item.length < 1) {
+                    errorLabel.text("Please fill out this field").addClass("text-danger font-weight-normal");
+                    valid = false;
+                } else {
+                    errorLabel.text("");
+                }
+            });
+        }
+        return valid;
+    }
+
+    var demo2 = $('#ddlNomineesDual').bootstrapDualListbox({
+        infoText: '',
+        btnClass: 'btn-primary',
+        btnRemoveAllText: 'Remove All',
+        btnMoveAllText: 'Move All',
+        nonSelectedListLabel: 'Employees',
+        selectedListLabel: 'Nominees',
+        moveOnSelect: false,
+        btnMoveText: 'Move Selected',
+        btnRemoveText: 'Remove Selected',
+        btnRemoveClass: 'btn-success',
+        moveOnDoubleClick: true,
+    });
+
+    $('#ddlNomineesDual').on('change', function () {
+        var size = $(this).find(":selected").length;
+        if (size > 3) {
+            $(this).find(":selected").each(function (ind, sel) {
+                if (ind > 2)
+                    $(this).prop("selected", false);
+            })
+            alert("No more than 3 Nominees are allowed to be selected at a time.");
+            $(this).bootstrapDualListbox('refresh', true);
+        }
+    })
+
+    //Handle blur, paste and change events
+    $(function () {
+        editor.on('blur', function (event) {
+            var editorPlainText = editor.getData().replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+            isValid(editorPlainText, "", "lblReasonError");
+        });
+        editor.on('change', function (event) {
+            var editorPlainText = editor.getData().replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+            var result = isValid(editorPlainText, "", "lblReasonError");
+            debugger
+        });
+        editor.on('paste', function (event) {
+            var charLimit = 3700;
+            var pastedData = event.data.dataValue.replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+            var existingData = editor.getData().replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+            var allData = existingData + pastedData;
+            var commentLines = allData.split("\n").length / 2;
+            for (var i = 1; i < commentLines; i++)
+                charLimit = charLimit - 100;
+
+            var dataRequired = charLimit - existingData.length;
+            if (allData.length > charLimit) {
+                event.data.dataValue = pastedData.substring(0, dataRequired);
+            }
+        });
+        $("#txtTeamName").on("blur input", function () {
+            var editorPlainText = editor.getData().replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+            isValid(editorPlainText, "requiredTeam");
+        });
+        $("#ddlNomineesDual").on("blur change", function () {
+            //var editorPlainText = editor.getData().replace(/(<([^>]+)>|\r\n|\r|\n)/ig, "").replace(/&nbsp;/g, ' ');
+            var editorPlainText = editor.getData().replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+            isValid(editorPlainText, "required");
+        });
+        $("#txtComment").on('blur input', function (event) {
+            isValid($(this).val(), "requiredTeam", "lblCommentsError");
+        });
+    });
+
+    function Update() {
+        var plainReason = editor.getData().replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+        var formattedReason = editor.getData().replace(/(\r\n|\r|\n)/ig, "");
+
+        var CMNT_TXT = $("#txtComment").val();
+        CMNT_TXT = CMNT_TXT.replace(/(\r\n|\r|\n)+/g, '$1');    //New
+
+        var AWARD_ID = $("#ddlAwardId").val();
+        var TEAM_NM = $("#txtTeamName").val();
+        var nomId = $("#hdnNominationId").val();
+        var StateId = $("#hdnNomStateId").val();
+
+        var nominees, model;
+        nominees = $("#ddlNomineesDual").val();
+        if (!isValid(plainReason, "requiredTeam", "lblReasonError") | !isValid(TEAM_NM, "requiredTeam") || !isValid(CMNT_TXT, "requiredTeam", "lblCommentsError"))
+            return false;
+
+        model = {
+            NOMN_ID: nomId,
+            AWARD_ID: AWARD_ID,
+            NomineeIds: nominees,
+            COMMENT: CMNT_TXT,
+            REASON: formattedReason,
+            TEAM_NM: TEAM_NM,
+            STAT_ID: StateId
+        }
+        var btn = $('.btnSubmit').html();
+        $('.btnSubmit').prop('disabled', true);
+        $('.btnSubmit').html("<i class='fa fa-spinner fa-pulse'/></i>&nbsp; please wait ...");
+        var url = '/Home/Nomination/EditByHead';
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: JSON.stringify({ 'model': model, 'type': 'Team', 'modifier': '@ViewBag.by' }),
+            contentType: 'application/json;charset=utf-8',
+            success: function (data) {
+                if (data.success) {
+                    window.location.href = data.url;
+                }
+                else if (!data.success) {
+                    alert("Error occured..!!")
+                }
+            },
+            error: function () {
+                alert("Error occured..!!");
+            },
+        });
+    }
+
+    $(".btnReview").click(function () {
+        var NOMN_ID = $("#hdnNominationId").val();
+        var NOMNR_EMAIL = $("#hdnEmailId").val();
+        var CMNT_TXT = $("#txtComment").val();
+        CMNT_TXT = CMNT_TXT.replace(/(\r\n|\r|\n)+/g, '$1');    //New
+
+        var TEAM_NM = $("#txtTeamName").val();
+
+        if (!isValid(CMNT_TXT, "requiredTeam", "lblCommentsError") || !isValid(TEAM_NM, "requiredTeam"))
+            return false;
+
+        var model = {
+            NominationId: NOMN_ID,
+            NOMNR_EMAIL: NOMNR_EMAIL,
+            ReviewText: CMNT_TXT,
+            ReviewBy: '@ViewBag.by',
+            AwardType: 'Team'
+        }
+        var btn = $('.btnReview').html();
+
+        $('.btnReview').prop('disabled', true);
+        $('.btnReview').html("<i class='fa fa-spinner fa-pulse'/></i>&nbsp; please wait ...");
+        $.ajax({
+            url: '/Home/Home/Review',
+            type: 'POST',
+            data: JSON.stringify(model),
+            contentType: 'application/json;charset=utf-8',
+            success: function (data) {
+                if (data.success) {
+                    window.location.href = data.url;
+                }
+                else if (!data.success) {
+                    alert("Error occured..!!")
+                }
+            },
+            error: function () {
+                alert("Error occured..!!");
+            },
+        });
+    });
+
+    $('#ddlAwardId').on('change', function () {
+        url = "@Url.Action("AwardDescription", "Nomination")";
+        awardId = $(this).val();
+        if (awardId == "") {
+            $('#teamForm').hide();
+            $('#Description').hide();
+            return false
+        };
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: { id: awardId },
+            contentType: 'application/json;charset=utf-8',
+            success: function (data) {
+                $('#Description').show();
+                $('#Description .card-body:first').html(data.desc);
+
+                if (data.type == "Team") {
+                    $('#teamForm').show();
+                } else {
+                    $('#teamForm').hide();
+                }
+            },
+            error: function () {
+                alert("Error occured..!!");
+            },
+        });
+    });
+
+</script>
+
+@if (ViewBag.by == "BuHead")
+    { <script>
+        $(".bootstrap-duallistbox-container").find("*").prop("disabled", true);
+    </script>
+    }
+

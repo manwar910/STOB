@@ -1,0 +1,89 @@
+﻿@using STOBEntities.Models
+@model List<NominationGraphAdmin>
+@{
+    var XLabels = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Select(x => x.Dimention).ToList());
+    var YValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Select(x => x.statusvalue).ToList());
+
+    //var YValues = (IList<int>) Model.Select(x => x.statusvalue).ToList();
+
+    ViewData["Title"] = "Bar Chart";
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Bar</title>
+    <style>
+        #chart {
+            width: 100%;
+            min-height: 350px;
+        }
+    </style>
+</head>
+<body>
+    <div class="box-body">
+        <div class="chart-container">
+            <canvas id="chart" height="400"></canvas>
+        </div>
+    </div>
+</body>
+</html>
+<script src="~/Scripts/Chart.bundle.min.js"></script>
+
+
+
+<script type="text/javascript">
+    $(function () {
+    var chartname = "chart";
+        var ctx = document.getElementById(chartname).getContext('2d');
+        var data = {
+                labels: @Html.Raw(XLabels),
+            datasets: [{
+                backgroundColor: ["#878BB6", "#66FF00", "#FF8153", "#4ACAB4"],
+                data: @Html.Raw(YValues),
+                }]
+            };
+
+        var options = {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                display: false
+            },
+            title: {
+                display: true,
+                text: 'Nominations Status',
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        min: 0,
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                        display: true,
+                        color: "rgba(255,99,164,0.2)"
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        min: 0,
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                        display: false
+                    }
+                }]
+            }
+        };
+
+        var myChart = new Chart(ctx, {
+            options: options,
+            data: data,
+            type: 'bar'
+
+        });
+        });
+
+</script>

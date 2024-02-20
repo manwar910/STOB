@@ -1,0 +1,138 @@
+﻿@using STOBDataLayer.Model_DTO
+@model BUViewModelDTO
+@{
+    ViewBag.Title = "Edit BU Head";
+}
+
+<link href="~/Content/toastr.css" rel="stylesheet" />
+<script src="~/Scripts/toastr.min.js"></script>
+<style>
+    .bootstrap-duallistbox-container select {
+        height: 100px !important;
+    }
+</style>
+
+<div class="heading">
+    <div class="headingIcon">
+        <i class="fa fa-pencil p-2"></i>
+    </div>
+    <div class="headingText">
+        Edit BU Head
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body bg-light rounded">
+
+        @using (Html.BeginForm("Edit", "BU", FormMethod.Post, new { id = "frmBuHead" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.BU_ID, new { id = "hdnBUId" })
+
+            <div class="row justify-content-center pr-sm-5 pl-sm-5 pt-3">
+                <div class="col-xl-4 col-md-5 col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.BU_NM, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.BU_NM, new { @class = "form-control", @readonly = "readonly", style = "height: 35px;", id = "txtEmp" })
+                        @Html.ValidationMessageFor(m => m.BU_NM, null, new { @class = "text-sm text-danger" })
+
+                    </div>
+                </div>
+                <div class="col-xl-4 col-md-5 col-sm-6">
+                    <div class="form-group ">
+                        @Html.LabelFor(m => m.BU_EMAIL, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.BU_EMAIL, new { @class = "form-control", @readonly = "readonly", style = "height: 35px;", id = "txtEmail" })
+                        @Html.ValidationMessageFor(m => m.BU_EMAIL, null, new { @class = "text-sm text-danger" })
+                    </div>
+                </div>
+                <div class="col-xl-4 col-md-5 col-sm-6">
+                    <div class="form-group">
+                        @Html.Label("Base Department", new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.BU_DEPT, new { @class = "form-control", @readonly = "readonly", style = "height: 35px;", id = "txtDept" })
+                        @Html.ValidationMessageFor(m => m.BU_DEPT, null, new { @class = "text-sm text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center pr-sm-5 pl-sm-5">
+                <div class="col-12">
+                    <div class="form-group">
+                        @Html.ListBoxFor(m => m.DEPTS, ViewBag.depts as List<SelectListItem>, new { @class = "form-control", style = "height: 35px;", id = "ddlDepts" })
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center mt-3">
+                <div class="col-md-5 text-center">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btnSubmit"><i class="fa fa-save"></i> <span class="">Save</span></button>
+                        <a href="@Url.Action("Add", "BU")" class="btn btn-default"><i class="fa fa-times"></i> Cancel</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="card-footer bg-white pt-3 pr-sm-5 pl-sm-5">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div id="partialsList" style="min-height:250px;"> </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (TempData["Message"] != null)
+{
+    <script type="text/javascript">
+               toastr.success("@TempData["Message"]");
+    </script>
+}
+
+@section scripts{
+    <script>
+        $(function () {
+            var BU_ID = $("#hdnBUId").val();
+            $('#partialsList').load("@Url.Action("PartialEditList", "BU")?Id=" + BU_ID + "");
+        });
+    </script>
+}
+
+<script type="text/javascript">
+    var changed = false;
+    $('#ddlDepts').change(function () {
+        var size = $(this).find(":selected").length;
+        if (size > 0) {
+            changed = true;
+        } else { changed = false; }
+    });
+
+    $('#frmBuHead').submit(function () {
+        if (!changed) {
+            alert("Please, add department(s).");
+            return false;
+        }
+        if ($(this).valid()) {
+            $('.btnSubmit').prop('disabled', true);
+            $('.btnSubmit').html("<i class='fa fa-spinner fa-pulse'/></i>&nbsp; please wait ...");
+        }
+        return true; // return false to cancel form action
+    });
+
+    var demo2 = $('#ddlDepts').bootstrapDualListbox({
+        infoText: '',
+        btnClass: 'btn-primary',
+        btnRemoveAllText: 'Remove All',
+        btnMoveAllText: 'Move All',
+        nonSelectedListLabel: 'Available Departments',
+        selectedListLabel: 'Departments Assigned',
+        moveOnSelect: false,
+        btnMoveText: 'Move Selected',
+        btnRemoveText: 'Remove Selected',
+        btnRemoveClass: 'btn-success',
+        moveOnDoubleClick: true,
+        showFilterInputs: false,    //remove this line or set it to true if filters required
+    });
+
+</script>
+
+
+

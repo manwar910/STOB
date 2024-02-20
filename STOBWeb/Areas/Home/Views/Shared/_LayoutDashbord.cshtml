@@ -1,0 +1,149 @@
+﻿@using STOBWeb.Areas.Home.Controllers
+@{
+
+    var controller = ViewContext.Controller as BaseController;
+    var currentVersion = controller.GetCurrentVersion();
+    var lastUpdatedDate = controller.GetlastUpdatedDate();
+    var username = controller.GetUserName();
+    var imageUrl = controller.GetImagePath();
+    var UserRoles = controller.GetUserRoles(username);
+    var hasRoles = controller.CheckUserHasStobRoles(UserRoles.ToList());
+
+}
+<!DOCTYPE html>
+@*<a href="~/Areas/Home/Views/Shared/_LayoutDashbord.cshtml">~/Areas/Home/Views/Shared/_LayoutDashbord.cshtml"</a>*@
+<html lang="en">
+<head>
+    <style>
+        .stretch-card {
+            width: 30em;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .navbar .navbar-menu-wrapper .navbar-toggler {
+            color: white !important;
+        }
+
+        .collapse.in {
+            display: block !important;
+        }
+
+        .navbar-collapse {
+            padding-right: 15px !important;
+            padding-left: 15px !important;
+            overflow-x: visible !important;
+            border-top: 1px solid transparent !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+    </style>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>@ViewBag.Title ABC Awards</title>
+
+    <link rel="shortcut icon" href="~/Content/Assets/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="~/Content/Assets/favicon.ico" type="image/x-icon">
+
+    <link href="~/Content/jquery/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Customization/AdminLTE/adminlte.min.css" rel="stylesheet" />
+    <!--NEW-->
+    <link href="~/Customization/CustomCSS/PageDesign.css" rel="stylesheet" />
+
+    <link href="~/Customization/select2/css/select2.min.css" rel="stylesheet" />
+    @*<link href="~/Customization/select2/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />*@
+    <link href="~/Customization/bootstrap4-duallistbox/bootstrap-duallistbox.min.css" rel="stylesheet" />
+    @Styles.Render("~/Content/fontawesome")
+    @Scripts.Render("~/bundles/jquery")
+    <script src="~/Scripts/ckeditor.js"></script>
+    <script src="~/Customization/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <!-- partial:../../partials/_navbar.html -->
+        <nav class="navbar fixed-top navbar-expand-md navbar-dark navbar-primary d-sm-block d-md-flex" style="background-image: url(@imageUrl);">
+            <a class="navbar-brand" href="#">
+                @*<img src="~/Content/Assets/wsfg-logo-white.png" style="width:100%;height:100%;" />*@
+            </a>
+            <button class="navbar-toggler collapsed float-right" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav">
+                    @if (hasRoles)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("index", "Nomination")">
+                                <i class="fa fa-home"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Add", "Nomination")">
+                                <i class="fa fa-plus"></i>
+                                New Nomination
+                            </a>
+                        </li>
+                    }
+                    @if (UserRoles.Contains("AdminRole"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("BuheadApprovalList", "Nomination")">
+                                <i class="fa fa-check"></i> BU Head Approval
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Add", "BU")">
+                                <i class="fa fa-user-plus"></i> Add BU Head
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Add", "Award")">
+                                <i class="fa fa-trophy"></i> Add Award
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="navbar-text" style="margin-right: 10px;">
+                <p class="mb-1 text-white">@username</p>
+            </div>
+        </nav>
+        <div class="container-fluid" style="padding-bottom:10rem;">
+            <div class="main-panel" style="width: 100%;">
+                <div class="container container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+        <footer class="footer">
+            <p>&copy; @DateTime.Now.Year - ABC Company </p>
+        </footer>
+    </div>
+
+
+    @Scripts.Render("~/bundles/modernizr")
+
+    <!--Commenting out is required for Displaying Popups-->
+    @*@Scripts.Render("~/bundles/bootstrap")*@
+
+    @RenderSection("scripts", required: false)
+    @RenderSection("Validation", required: false)
+    <script src="~/Scripts/jquery/jquery-ui-1.12.1.js"></script>
+
+    <link href="~/Customization/Bootstrap DataTable/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <script src="~/Scripts/datatable.min.js"></script>
+    <script src="~/Customization/Bootstrap DataTable/js/dataTables.bootstrap4.min.js"></script>
+
+    @*<script src="~/Customization/select2/js/select2.full.min.js"></script>*@
+
+    <!--NEW-->
+    <script src="~/Customization/JQuery/bootstrap.bundle.min.js"></script>
+
+    <script src="~/Customization/AdminLTE/adminlte.min.js"></script>
+
+    @Scripts.Render("~/bundles/jqueryval")
+</body>
+</html>

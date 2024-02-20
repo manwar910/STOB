@@ -1,0 +1,202 @@
+﻿@model STOBDataLayer.Models.Nominations
+@{
+    Layout = null;
+    var awardType = Model.Award.AWARD_TYPE;
+    var nomLastStatus = Model.NominationStatuses.LastOrDefault();
+}
+
+<head>
+    <link href="~/Customization/AdminLTE/adminlte.min.css" rel="stylesheet" />
+    <link href="~/Customization/CustomCSS/PageDesign.css" rel="stylesheet" />
+
+    <style type="text/css">
+        @@page {
+            size: auto; /*To display Layout option*/
+            margin: 1cm 1cm 1cm 1cm;
+        }
+        div.page {
+            page-break-after: always;
+            page-break-inside: avoid;
+        }
+        @@media print {
+            #header {
+                position: fixed;
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                color: #CCC;
+                padding: 8px;
+            }
+            #body {
+                position:relative;
+                top: 120px;
+            }
+        }
+    </style>
+
+    <title>Nominations Report</title>
+    <script>
+        function printWindow() {
+            var is_chrome = function () { return Boolean(window.chrome); }
+            if (is_chrome) {
+                window.print();
+                setTimeout(function () { window.close(); }, 10000);
+                //give them 10 seconds to print, then close
+            }
+            else {
+                window.print();
+                window.close();
+            }
+        }
+        printWindow();
+    </script>
+</head>
+
+<body>
+    <section class="content">
+        <div class="container-fluid" style="width:90% !important;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="invoice p-3 mb-3">
+                        <div class="row no-print pt-5">
+                            <div class="col-12">
+                                <a href="#" onclick="printWindow();" class="btn btn-default"><i class="fas fa-print"></i> Print</a>
+                                @if (ViewBag.page == "AddNomination")
+                                {
+                                    <a href="@Url.Action("Add", "Nomination")" class="btn btn-success float-right"><i class="fas fa-home"></i> Back to Nominations List</a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("Index", "Home")" class="btn btn-success float-right"><i class="fas fa-home"></i> Back to Nominations List</a>
+                                }
+                            </div>
+                        </div>
+                        <div id="header">
+                            <div class="row border-bottom border-2">
+                                <div class="col-6">
+                                    <div class="row">
+                                        <div class="col-12 invoice-col">
+                                            <img src="~/Content/Assets/wsfg-logo.png" style="width:180px;height:45px;" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 text-right">
+                                    <div class="invoice-title">
+                                        <h2 class="text-right">
+                                            Nomination Report
+                                        </h2>
+                                        <span class="text-muted">@DateTime.Now</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="body">
+                            <div class="row">
+                                <div class="col-8">
+                                    <table class="table table-sm table-borderless text-lg">
+                                        <tr>
+                                            <td>Award</td>
+                                            <td>
+                                                <strong>@Model.Award.AWARD_NM</strong>
+                                                <span class="text-muted text-sm d-block">
+                                                    @awardType@{if (awardType == "Team")
+                                                        {<span>: @Model.TEAM_NM</span>} }
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nominator</td>
+                                            <td>
+                                                <strong>@Model.NOMNR_NM</strong>
+                                                <span class="text-muted text-sm d-block">@Model.NOMNR_EMAIL</span>
+                                            </td>
+                                        </tr>
+                                        <tr><td>Current Status</td>
+                                            <td>
+                                                <strong>@nomLastStatus.Status.STAT_TXT</strong>
+                                                @if (nomLastStatus.STAT_ID == 7)
+                                                {
+                                                    <span class="d-block text-xs text-muted"><b>Reason: </b> @nomLastStatus.COMMENT</span>
+                                                }
+                                                <span class="d-block text-xs text-muted"><b>Date: </b> @nomLastStatus.DATE</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            @if (awardType == "Team")
+                            {
+                                <div class="row pt-5">
+                                    <div class="col-12">
+                                        <h4 class="bg-light p-2">REASON OF NOMINATION</h4>
+                                        <p style="font: 12pt Arial;">
+                                            @*@Html.Raw(Model.CMNT_TXT.Replace("\n", "<br />"))*@
+                                            @{
+                                                MvcHtmlString htmlString = new MvcHtmlString(Model.NOMN_RSN);
+                                                @htmlString;
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="row mt-3">
+                                <div class="col">
+                                    @if (awardType == "Team")
+                                    {
+                                        <div class="page"></div>
+                                        <h4 class="d-block p-2 text-center bg-light">Nominees</h4>
+                                    }
+                                    else
+                                    {
+                                        <h4 class="d-block p-2 bg-light">Nominee Detail</h4>
+                                    }
+                                    <table class="table">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Title</th>
+                                            <th>Department</th>
+                                            <th>Exemption</th>
+                                            <th>Email</th>
+                                        </tr>
+                                        @{ var nominees = Model.Nominees.OrderBy(n => n.FIRST_NM + " " + n.LAST_NM).ToList();
+                                            foreach (var n in nominees)
+                                            {
+                                                <tr>
+                                                    <td>@n.FIRST_NM @n.LAST_NM</td>
+                                                    <td>@n.TITLE_TXT</td>
+                                                    <td>@n.BU_Dept</td>
+                                                    <td>@n.EXEMPT_CD</td>
+                                                    <td>@n.EMAIL</td>
+                                                </tr>
+                                            }
+                                        }
+                                    </table>
+                                </div>
+                            </div>
+
+                            @if (awardType == "Individual")
+                            {
+                                <div class="row pt-3">
+                                    <div class="col-12">
+                                        <h4 class="bg-light p-2">REASON OF NOMINATION</h4>
+                                        <p style="font: 12pt Arial;">
+                                            @*@Html.Raw(Model.CMNT_TXT.Replace("\n", "<br />"))*@
+                                            @{
+                                                MvcHtmlString htmlString = new MvcHtmlString(Model.NOMN_RSN);
+                                                @htmlString;
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+
+<script src="~/Customization/AdminLTE/adminlte.min.js"></script>

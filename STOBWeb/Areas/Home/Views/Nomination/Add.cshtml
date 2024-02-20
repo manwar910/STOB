@@ -1,0 +1,525 @@
+﻿@using STOBDataLayer.ViewModels
+@model NominationVM
+
+@{
+    ViewBag.Title = "Individual Nomination";
+    Layout = "~/Areas/Home/Views/Shared/_LayoutDashbord.cshtml";
+}
+
+<link href="~/Content/toastr.css" rel="stylesheet" />
+<script src="~/Scripts/toastr.min.js"></script>
+
+<div class="heading">
+    <div class="headingIcon">
+        <i class="fa fa-user-plus p-2"></i>
+    </div>
+    <div class="headingText">
+        New Nomination
+    </div>
+</div>
+
+
+<form id="frmNomination">
+    <div asp-validatioin-summary="All" class="text-danger"></div>
+    <div class="row justify-content-between mb-4">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="labelRequired">Select Award </label>
+                @Html.DropDownListFor(m => m.AWARD_ID, ViewBag.AwardList as List<SelectListItem>, new { @class = "form-control", id = "ddlAward" })
+                <span class="invalid" id="lblAwardError" style="display:none">Please Select an Award !!</span>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="form-group" id="Description" hidden>
+                <label>Award Description </label>
+                <div class="card shadow-none">
+                    <div class="card-body p-0">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card" id="mainContainer" hidden>
+                <div class="card-body bg-light">
+                    <section class="individual" style="display:none;">
+                        <div class="row justify-content-between">
+                            <div class="col-sm-6 col-md-4">
+                                <div class="form-group">
+                                    <label class="labelRequired">Choose Nominee</label>
+                                    @Html.DropDownListFor(m => m.NomineeIds, ViewBag.Employees as List<SelectListItem>, new { @class = "form-control required", placeholder = "Choose nominee", id = "ddlNominee" })
+                                    <span class="invalid errorLabel"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="empDetailLoading"></div>
+
+                        <div class="row" id="empDetail" style="display:none;">
+                            <div class="col-md-3">
+                                <div class="info-box shadow-sm">
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Business Unit</span>
+                                        <span class="info-box-number" id="txtDepartment"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-box shadow-sm">
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Title</span>
+                                        <span class="info-box-number" id="txtTitle"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="info-box shadow-sm">
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Exemption</span>
+                                        <span class="info-box-number" id="txtExemption"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box shadow-sm">
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Email</span>
+                                        <span class="info-box-number" id="txtEmail"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </section>
+                    <section class="team" style="display:none;">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label>Team Name </label>
+                                @Html.TextBoxFor(m => m.TEAM_NM, new { @class = "form-control requiredTeam", id = "txtTeamName" })
+                                @Html.ValidationMessageFor(m => m.TEAM_NM, null, new { @class = "form-text invalid errorLabel" })
+                            </div>
+                        </div>
+                        <div class="col-12 mb-4">
+                            <div class="form-group">
+                                @Html.ListBoxFor(m => m.NomineeIds, ViewBag.EmployeesMulti as List<SelectListItem>, new { @class = "form-control requiredTeam", id = "ddlNomineesDual", placeholder = "Choose nominees" })
+                                <span class="invalid errorLabel"></span>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="common" style="display:none;">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="labelRequired">Reason for Nomination </label>
+                                    <div>
+                                        Describe how the nominee or team meets the award description.  Submission reminders:
+                                        <ul>
+                                            <li>Font standard is 10 point Arial</li>
+                                            <li>Limited to space provided below.</li>
+                                            <li>Must review for spelling, grammar and punctuation</li>
+                                        </ul>
+                                    </div>
+                                    @Html.TextAreaFor(m => m.COMMENT, new { @class = "form-control editorHtml", spellcheck = "true", rows = "8", id = "txtComment", style = "font:10pt arial;" })
+                                    <span class="invalid" id="lblCommentsError"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <div class="individual" style="display:none;">
+                        <div class="row mt-2 mb-2">
+                            <div class="col">
+                                <div class="form-group float-right">
+                                    <button type="button" onclick="SaveorSubmit(1)" class="btn btn-success btnSubmit1"><i class="fa fa-save"></i> Save</button>
+                                    <button type="button" onclick="SaveorSubmit(2)" class="btn btn-success btnSubmit2"><i class="fa fa-paper-plane"></i> Submit</button>
+                                    @*<button type="button" id="btnLines" class="btn btn-primary float-left">Count Lines</button>*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="team" style="display:none;">
+                        <div class="row mt-2 mb-2">
+                            <div class="col">
+                                <div class="form-group float-right">
+                                    <button type="button" onclick="SaveorSubmit(1, 'team')" class="btn btn-success btnSubmit1">
+                                        <i class="fa fa-save"></i> Save
+                                    </button>
+                                    <button type="button" onclick="SaveorSubmit(2, 'team')" class="btn btn-success btnSubmit2"><i class="fa fa-paper-plane"></i> Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div id="nominationsList">
+
+</div>
+
+<div id="spinner-overlay">
+
+</div>
+
+<script src="~/Scripts/notify.min.js"></script>
+
+<script type="text/javascript">
+
+    function fillEmployeesDDL(awardTitle) {
+        exType = awardTitle.indexOf('(') > -1 ? awardTitle.split('(')[1].split(')')[0].trim() : "Team";
+        $.ajax({
+            type: "get",
+            url: "/Nomination/EmployeesListPartial",
+            data: { exType: exType },
+            success: function (data) {
+                $("#ddlNominee").empty();
+                $("#ddlNominee").append(data);
+                //hideForm();
+            },
+            error: function (error) {
+                alert("Error: Please try again.");
+            }
+        })
+    };
+
+
+    CKEDITOR.replace("txtComment");
+    var editor = CKEDITOR.instances['txtComment'];
+
+    var loader = "<h2 class='text-center text-success'><i class='fa fa-spinner fa-pulse'/></i>&nbsp; Loading...</h2>";
+
+    //Handle blur, paste and change events
+    $(function () {
+        editor.on('blur', function (event) {
+            var editorPlainText = editor.getData().replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+            isValid(editorPlainText, "");
+        });
+        editor.on('change', function (event) {
+            var editorPlainText = editor.getData().replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+            var result = isValid(editorPlainText, "");
+            if (!result) event.stop();
+        });
+        editor.on('paste', function (event) {
+            var charLimit = 3700;
+            var pastedData = event.data.dataValue.replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+            var existingData = editor.getData().replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+            var allData = existingData + pastedData;
+            var commentLines = allData.split("\n").length / 2;
+            for (var i = 1; i < commentLines; i++)
+                charLimit = charLimit - 100;
+
+            var dataRequired = charLimit - existingData.length;
+            debugger
+            if (allData.length > charLimit) {
+                event.data.dataValue = pastedData.substring(0, dataRequired);
+            }
+        });
+        $("#txtTeamName").on("blur input", function () {
+            var editorPlainText = editor.getData().replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+            isValid(editorPlainText, "requiredTeam");
+        });
+        $("#ddlNominee, #ddlNomineesDual").on("blur change", function () {
+            //var editorPlainText = editor.getData().replace(/(<([^>]+)>|\r\n|\r|\n)/ig, "").replace(/&nbsp;/g, ' ');
+            var editorPlainText = editor.getData().replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+            isValid(editorPlainText, "required");
+        });
+    });
+
+    $(function () {
+        loadNominationsTable("");
+    });
+
+    function loadNominationsTable(type) {
+        var url = "@Url.Action("DraftNominationPartial", "Nomination")" + "?type=" + type;
+        $.ajax({
+             url: url,
+             beforeSend: function (data) {
+                 $('#nominationsList').html(loader);
+             },
+            success: function (data) {
+                $('#nominationsList').html(data);
+            },
+        });
+    }
+    function isValid(comment, className) {
+        var charLimit = 3700;
+        var valid = true;
+        var commentLines = comment.split("\n").length / 2;
+        for (var i = 1; i < commentLines; i++)
+            charLimit = charLimit - 100;
+        debugger
+        //For CKEDITOR
+        if (comment.length == 0) {
+            $('#lblCommentsError').text("Please fill out this field").addClass("text-danger font-weight-normal");
+            valid = false;
+        } else if (comment.length > charLimit) {
+            $('#lblCommentsError').text("You have reached the maximum character limit. Please, delete some text.");
+            valid = false;
+        } else if (commentLines>47) {
+            $('#lblCommentsError').text("You have reached a limit of 47 lines. Delete some text.");
+            valid = false;
+        } else if (comment.length > 0 && comment.length <= charLimit && commentLines <= 47) {
+            $('#lblCommentsError').text("");
+            valid = true;
+        }
+        //For select and duallistbox
+        if (className != "") {
+            $("." + className).each(function (index) {
+                var errorLabel = $(this).closest('.form-group').find('.errorLabel');
+                var item = $(this).val();
+                debugger
+                if (item == null || item.length < 1 || item == "-1") {
+                    errorLabel.text("Please fill out this field").addClass("text-danger font-weight-normal");
+                    valid = false;
+
+                } else {
+                    var errorText = errorLabel.text();
+                    var errorIndex = errorText.indexOf("already exists");
+                    if (errorIndex < 1) {   //Not Exists (to check for Exit write >-1 instead of <0)
+                        errorLabel.text("");
+                    }
+                }
+            });
+        }
+        return valid;
+    }
+
+    var demo2 = $('#ddlNomineesDual').bootstrapDualListbox({
+        infoText: '',
+        btnClass: 'btn-primary',
+        btnRemoveAllText: 'Remove All',
+        btnMoveAllText: 'Move All',
+        nonSelectedListLabel: 'Employees',
+        selectedListLabel: 'Nominees',
+        moveOnSelect: false,
+        btnMoveText: 'Move Selected',
+        btnRemoveText: 'Remove Selected',
+        btnRemoveClass: 'btn-success',
+        moveOnDoubleClick: true,
+    });
+
+    $('#ddlNomineesDual').on('change', function () {
+        var size = $(this).find(":selected").length;
+        if (size > 3) {
+            $(this).find(":selected").each(function (index, sel) {
+                if (index > 2)
+                    $(this).prop("selected", false);
+            })
+            alert("No more than 3 Nominees are allowed to be selected at a time.");
+            $(this).bootstrapDualListbox('refresh', true);
+        }
+    })
+    $('.box2 label').addClass("labelRequired");
+    $('.box1 label').addClass("labelRequired");
+
+    $('#ddlNominee').on("change", function () {
+        url = "@Url.Action("getEmployeeDetail", "Nomination")";
+        empId = $(this).val();
+        if (empId < 1) {
+            $('#empDetail').hide();
+            return;
+        }
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: { 'empId': empId },
+            contentType: 'application/json;charset=utf-8',
+            beforeSend: function (data) {
+                $('#empDetail').hide();
+                $('#empDetailLoading').html(loader);
+            },
+            success: function (data) {
+                $('#empDetailLoading').html("");
+                $('#empDetail').show();
+                $('#txtDepartment').text(data.Department);
+                $('#txtTitle').text(data.Title);
+                $('#txtExemption').text(data.Exemption);
+                $('#txtEmail').text(data.Email);
+            },
+            error: function () {
+                alert("Error occured..!!");
+            },
+        });
+    });
+
+    var displayIndForm = function () {
+        $('.individual').show();
+        $('#common').show();
+        $('.team').hide();
+        loadNominationsTable("Individual");
+    }
+    var displayTeamForm = function () {
+        $('.individual').hide();
+        $('#common').show();
+        $('.team').show();
+        loadNominationsTable("Team");
+    }
+    var hideForm = function() {
+        $('#Description').attr("hidden", "true");
+        $('#mainContainer').attr("hidden", "true");
+        $('.individual').hide();
+        $('.team').hide();
+        $('#common').hide();
+        loadNominationsTable("");
+    };
+
+    $('#ddlAward').on('change', function () {
+        awardId = $(this).val();
+        if (awardId == "") {
+            hideForm();
+            return false
+        };
+
+        var awardVal = $("option:selected", $(this)).text();
+        fillEmployeesDDL(awardVal);
+
+        url = "@Url.Action("AwardDescription", "Nomination")";
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: { id: awardId },
+            contentType: 'application/json;charset=utf-8',
+            success: function (data) {
+                $('#Description').removeAttr("hidden");
+                $('#Description .card-body:first').html(data.desc);
+                $('#mainContainer').removeAttr("hidden");
+                if (data.type == "Individual") {
+                    displayIndForm();
+                }
+                else if (data.type == "Team") {
+                    displayTeamForm();
+                } else {
+                    hideForm();
+                }
+            },
+            error: function () {
+                alert("Error occured..!!");
+            },
+        });
+    });
+
+    function SaveorSubmit(id, type) {
+        var plainComment = editor.getData().replace(/(<([^>]+)>)/ig, "").replace(/&nbsp;/g, ' ');
+        var formattedComment = editor.getData().replace(/(\r\n|\r|\n)/ig, "");
+        var AWARD_ID = $("#ddlAward").val();
+        var TEAM_NM = $("#txtTeamName").val();
+
+        var nominees, model;
+        if (type == "team") {
+            nominees = $("#ddlNomineesDual").val();
+            if (!isValid(plainComment, "requiredTeam"))
+                return false;
+        }
+        else {
+            nominees = $("#ddlNominee").val();
+            if (!isValid(plainComment, "required"))
+                return false;
+        }
+
+        model = {
+            AWARD_ID: AWARD_ID,
+            NomineeIds: nominees,
+            COMMENT: formattedComment,
+            TEAM_NM: TEAM_NM
+        }
+        $('#spinner-overlay').html("<span id='spinner-overlaytext'><span class='spinner-border' role='status' aria-hidden='true'></span> </br><h2>Please Wait... </h2></span>");
+        $('#spinner-overlay').show();
+        var url = '/Home/Nomination/Add';
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: JSON.stringify({ 'model': model, 'btnStatus': id }),
+            contentType: 'application/json;charset=utf-8',
+            success: function (data) {
+                if (data.success) {
+                    window.location.href = "/Home/Nomination/Add";
+                }
+                else if (!data.success) {
+                    alert("Error occured..!!")
+                }
+            },
+            error: function () {
+                alert("Error occured..!!");
+            },
+        });
+    }
+
+    @*$(function () {
+        $("#txtNomineeName").autocomplete({
+            source: function (request, response) {
+                $(".txtspinner").show();
+                var Url = "@Url.Action("GetEMployeeNamesAndTitle", "Nomination")";
+                $.ajax({
+                    url: Url,
+                    data: "{ 'search': '" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        $(".txtspinner").hide();
+                        response($.map(data, function (item) {
+                            return item;
+                        }))
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            select: function (e, i) {
+                $("#hdnLastName").val(i.item.lastName);
+                $("#txtTitle").val(i.item.title).change();
+                $("#hdnFirstName").val(i.item.firstName);
+                $("#hdnTitle").val(i.item.title);
+                $("#ddlExempt").val(i.item.exemptStatus);
+                $("#txtBUDept").val(i.item.deptname);
+            },
+            minLength: 0
+        }).focus(function () {
+            //$(this).autocomplete("search");
+        });
+    });*@
+
+</script>
+
+@section scripts{
+    @if (TempData["EditMessage"] != null)
+    {
+        <script type="text/javascript">
+                    toastr.success("@TempData["EditMessage"]");
+        </script>
+    }
+    else if (TempData["SaveMessage"] != null)
+    {
+        <script type="text/javascript">
+                    toastr.success("@TempData["SaveMessage"]");
+        </script>
+
+    }
+    else if (TempData["SubmitMessage"] != null)
+    {
+        <script type="text/javascript">
+                    toastr.success("@TempData["SubmitMessage"]");
+        </script>
+    }
+    else if (TempData["DeleteNom"] != null)
+    {
+        <script type="text/javascript">
+                    toastr.success("@TempData["DeleteNom"]");
+        </script>
+    }
+    else if (TempData["BuHeadNull"] != null)
+    {
+        <script type="text/javascript">
+                    toastr.warning("@TempData["BuHeadNull"]");
+        </script>
+    }
+}
+
+
+

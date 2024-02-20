@@ -1,0 +1,121 @@
+﻿@using STOBDataLayer.Model_DTO 
+@model IEnumerable<AssociateAwardNominationDTO>
+@{
+    ViewBag.Title = "Index";
+
+}
+<style>
+    .thead-dark {
+        background-color: #0b86c4
+    }
+</style>
+
+
+<input type="hidden" id="hiddenregistrationid" />
+
+<h4 class="card-title"> Nomination List : </h4>
+
+    <div></div>
+@*<ul class="nav navbar-nav">
+    <li>@Html.ActionLink("Create a Nomination", "Add", "Nomination", new { @class = "btn btn-sm btn-primary" })</li>
+</ul>*@
+<br />
+
+<div class="table table-responsive ">
+    <table id="tblrecord" class="table table-bordered">
+        <thead class="thead-dark">
+            <tr style="color: white;">
+                <th>Title</th>
+                <th>Nominee name</th>
+                <th>Nominated award</th>
+                <th>Business unit name</th>
+                <th>Exempt</th>
+                <th>Current status</th>
+                <th>Date created </th>                
+                <th>Action/Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ev in Model.ToList())
+            {
+                <tr id="row_@ev.NOMN_ID" class="table-primary">
+                   <td>@ev.TITLE_TXT</td>
+                    <td>@ev.FIRST_NM, @ev.LAST_NM</td>
+                    <td>@ev.AWARD_NM </td>
+                    <td>@ev.BU_DEPT</td>
+                    <td>@ev.Exemptstring</td>
+                    <td>@ev.STAT_TXT</td> 
+                    <td>@ev.NOMN_CREATE_DT</td> 
+                    <td>
+                        @if (ev.STAT_ID == 2)
+                        {
+
+                            <a href="@Url.Action("Approve", "Nomination", new { NominationId = ev.NOMN_ID })"> <span class="btn btn-outline-success btn-icon-text btn-sm ">Approve</span></a>
+                            <a href="@Url.Action("Reject", "Nomination", new { NominationId = ev.NOMN_ID })"><span class="btn btn-outline-danger btn-icon-text btn-sm ">Reject</span></a>
+                            <a href="@Url.Action("CoordinatorNominatorViewEdit", "Nomination", new { NominationId = ev.NOMN_ID })"><span class="btn btn-outline-primary mdi  mdi-eye btn-sm ">View/Edit</span></a>
+                        }
+                        @if (ev.APRVD_FLG && ev.STAT_ID == 3)
+                        {
+                            <span span class="btn btn-outline-success btn-sm">Approved</span>
+                        }
+                        @if (ev.RJCTD_FLG)
+                        {
+                            <span span class="btn btn-outline-danger btn-sm">Rejected</span>
+                        }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section scripts{
+
+    <script>
+
+        $(function () {
+
+
+            var val="@TempData["Message"]";
+             $.notify(val, {
+                 type: 'success',
+                    //icon: 'check',
+                    animation: true,
+                    animationType: "drop",
+                 close: true,
+                 closeClick: true,
+                 position: "top center",
+
+
+                });
+            //$(".notifyposition").notify({
+            //    position: "top center",
+            //});
+        });
+
+        confirmdelete = function (eid) {
+            $("#mymodal").modal('show');
+            $("#hiddenregistrationid").val(eid);
+        }
+
+        var deleteregistration = function () {
+            var regid = $("#hiddenregistrationid").val();
+            $.ajax({
+                type: "post",
+                url: "/workshops/home/registration/deleteregistration",
+                data: { registrationid: regid },
+                success: function (result) {
+
+                    $("#mymodal").modal("hide");
+                    $("#row_" + regid).remove();
+
+                },
+                error: function (jqxhr, textstatus, errorthrown) {
+                    alert(textstatus);
+                }
+
+            })
+
+        }
+    </script>
+
+}

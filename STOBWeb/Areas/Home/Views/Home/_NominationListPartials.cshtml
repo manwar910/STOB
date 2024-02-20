@@ -1,0 +1,334 @@
+﻿@using STOBWeb.Areas.Home.Controllers
+@{
+    var UserRoles = Roles.GetRolesForUser();
+}
+
+@model IEnumerable<STOBDataLayer.ViewModels.NominationVM>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+    .form-control-sm {
+        min-height: 1.5rem !important;
+        font-size: 10pt !important;
+    }
+</style>
+
+<table id="tblrecord" class="table table-sm table-valign-middle pb-4 pt-2" style="width:100%!important;">
+    <thead>
+        <tr>
+            <th class="bg-light">Nominees</th>
+            <th>Nominator</th>
+            <th>Award</th>
+            <th>Created On</th>
+            <th>Current Status</th>
+            <th class="text-center">History</th>
+            <th class="text-center">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var n in Model)
+        {
+            <tr id="row_@n.NOMN_ID">
+                <td class="bg-light">
+                    <div class="btn-group dropdown">
+                        <button class="dropdown-toggle btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="window">
+                            Detail
+                        </button>
+
+                        <div class="dropdown-menu p-4" style="min-width: 250px !important;">
+                            <table class="table table-sm table-hover">
+                                <tr class="bg-light">
+                                    <th>Nominee</th>
+                                    <th>Title</th>
+                                    <th>Department</th>
+                                    <th>Exemption</th>
+                                    <th>Email</th>
+                                </tr>
+                                @foreach (var nominee in n.Nominees)
+                                {
+                                    <tr>
+                                        <td>@nominee.FIRST_NM @nominee.LAST_NM</td>
+                                        <td>@nominee.TITLE_TXT</td>
+                                        <td>@nominee.BU_Dept</td>
+                                        <td>@nominee.EXEMPT_CD</td>
+                                        <td>@nominee.EMAIL</td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                    </div>
+                </td>
+                <td>@n.NOMNR_NM <span class="d-block text-xs text-muted" style="margin-top:-5px;">@n.NOMNR_BU_DEPT</span></td>
+                <td>@n.Award_Name <span class="d-block text-xs text-muted" style="margin-top:-5px;">@n.Award_Type</span></td>
+                <td class="years" data-order="@n.DATE.ToString("yyyyMMdd")">@n.DATE.ToShortDateString()</td>
+                <td>
+                    @{
+                        if (n.STAT_ID == 1)     //Drafted
+                        {
+                            <i class="fa fa-exclamation text-info"></i> <span> @n.STAT_TXT</span>
+                        }
+                        else if (n.STAT_ID == 2)    //Submitted
+                        {
+                            <i class="fa fa-paper-plane text-primary"></i> <span> @n.STAT_TXT</span>
+                        }
+                        else if (n.STAT_ID == 3)    //SentForReview
+                        {
+                            <i class="fa fa-refresh text-primary"></i> <span> @n.STAT_TXT</span>
+                        }
+                        else if (n.STAT_ID == 4)    //Modified
+                        {
+                            <i class="fa fa-edit text-success"></i> <span> @n.STAT_TXT</span>
+                        }
+                        else if (n.STAT_ID == 5)    //BuApproved
+                        {
+                            <i class="fa fa-check text-success"></i> <span> @n.STAT_TXT</span>
+                        }
+                        else if (n.STAT_ID == 6)    //AdmApproved
+                        {
+                            <i class="fa fa-check-circle text-success"></i> <span> @n.STAT_TXT</span>
+                        }
+                        else if (n.STAT_ID == 7)    //Rejected
+                        {
+                            <i class="fa fa-ban text-danger"></i>
+                            <span> @n.STAT_TXT</span>
+                            <button class="btn btn-outline-light rounded-pill shadow-sm btn-sm float-right mr-3 btnReason" data-reason="@n.COMMENT" data-target="#reasonModal" data-toggle="modal">
+                                <i class="fa fa-question text-success"></i>
+                            </button>
+                        }
+                    }
+                    <span class="d-block text-xs text-muted" style="margin-top:-5px;">@n.STAT_BY</span>
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-sm bg-white btnHistory" data-url="@Url.Action("NominationDetailPartial", "Home", new { nomId = n.NOMN_ID })" data-target="#historyModal" data-toggle="modal">
+                        <i class="fa fa-history text-success"></i>
+                    </button>
+                </td>
+                <td class="text-center">
+                    @if (n.STAT_ID > 1)    //Not Drafted
+                    {
+                        if (n.STAT_ID != 3)  //Not sent for Review
+                        {
+                            if (ViewBag.toggleNominations == true)
+                            {
+                                <a href="@Url.Action("EditByHead", "Nomination", new { type=n.Award_Type, NominationId = n.NOMN_ID, by="Admin" })" class="btn btn-sm btn-light border mb-1" title="Edit"><i class="fa fa-pencil text-warning"></i> </a>
+                                if (n.STAT_ID == 6) //AdminApproved
+                                {
+                                    //if (UserRoles.Contains("WSF-Stob-Role-SuperAdmin"))
+                                    //{
+                                    <button data-href="@Url.Action("RejectByAdmin", "Home", new { NominationId = n.NOMN_ID })"
+                                            class="btnRej btn btn-sm btn-light border mb-1" title="Reject" data-target="#rejectModal" data-toggle="modal">
+                                        <i class="fa fa-ban text-red"></i>
+                                    </button>
+                                    //}
+                                    <button data-url="@Url.Action("ExportToExcelApprovedNominees", "Home", new { NominationId = n.NOMN_ID })" class="btn btn-sm btn-light border mb-1 btnExportExcel" title="Export to Excel"><i class="fa fa-file-excel-o text-success"></i> </button>
+                                }
+                                else if (n.STAT_ID == 7)
+                                {   //Display ApprovebyAdmin
+                                    //if (UserRoles.Contains("WSF-Stob-Role-SuperAdmin"))
+                                    //{
+                                    <button data-href="@Url.Action("ApprovebyAdmin", "Home", new { NominationId = n.NOMN_ID })" class="btnApp btn btn-sm btn-light border mb-1" title="Approve"><i class="fa fa-check text-success"></i> </button>
+                                    //}
+                                }
+                                else
+                                {   //Display both buttons
+                                    <button data-href="@Url.Action("RejectByAdmin", "Home", new { NominationId = n.NOMN_ID })"
+                                            class="btnRej btn btn-sm btn-light border mb-1" title="Reject" data-target="#rejectModal" data-toggle="modal">
+                                        <i class="fa fa-ban text-red"></i>
+                                    </button>
+                                    <button data-href="@Url.Action("ApprovebyAdmin", "Home", new { NominationId = n.NOMN_ID })" class="btnApp btn btn-sm btn-light border mb-1" title="Approve"><i class="fa fa-check text-success"></i> </button>
+                                }
+                            }
+                        }
+                    }
+                    <a href="@Url.Action("Rep_Nomination", "Home", new { NominationId = n.NOMN_ID })" class="btn btn-sm btn-light border mb-1" title="Print"> <i class="fa fa-print text-gray"></i> </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h4 class="modal-title">Reason of Rejection</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <h3 class="text-danger p-2">Do you realy want to reject this nomination?</h3>
+                    @*<textarea class="form-control editorHtml" maxlength="100" , spellcheck="true" rows="6" id="txtReasonReject"></textarea>
+                        <span class="invalid" id="lblReasonError"></span>*@
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" type="button" class="btn btn-default">Cancel</button>
+                <button data-dismiss="modal" id="btnContinueReject" type="button" class="btn btn-primary">Reject</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reasonModal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Reason of Rejection</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <span id="txtReasonView">
+
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-dialog-centered modal-xl" id="modalHistoryDialog">
+
+    </div>
+</div>
+
+<div id="spinner-overlay">
+
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        var url = "";
+        var btn = "";
+
+        $('.btnReason').on('click', function () {
+            var reason = $(this).data('reason');
+            $(".modal-body #txtReasonView").html(reason);
+        });
+
+        $('.btnApp').on('click', function () {
+            url = $(this).data('href');
+            btn = $(this);
+            appRej(url, btn);
+        });
+
+        $('.btnRej').on('click', function () {
+            url = $(this).data('href');
+            btn = $(this);
+        });
+        var isValidReason = function (txtReason) {
+            if (txtReason.val().length < 1) {
+                $('#lblReasonError').text("Reason is required.").addClass("text-sm text-danger");
+                txtReason.focus();
+                return false;
+            } else {
+                $('#lblReasonError').text("");
+                return true;
+            }
+        };
+        $('#txtReasonReject').on('input blur', function () {
+            isValidReason($(this));
+        });
+
+        $('#btnContinueReject').on('click', function () {
+            //var txtReject = $('#txtReasonReject');
+            //if (!isValidReason(txtReject))
+            //    return false;
+            appRej(url, btn);
+        });
+
+        var appRej = function (url, btn) {
+            var btnOldHtml = btn.html();
+            var btnNewHtml = "<i class='fa fa-spinner fa-pulse'/></i>";
+            //var reason = $('#txtReasonReject').val();
+            var reason = "Conversation has been held with nominator.";
+            $(document).ajaxStart(function () {
+                btn.prop('disabled', true);
+                btn.html(btnNewHtml);
+            });
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: { 'reason': reason },
+                cache: false,
+                success: function (data) {
+                    window.location.href = data.url;
+                    //loadNominationsTable(0);
+                },
+                error: function () {
+                    alert("Error occured..!!");
+                },
+                complete: function () {
+                    //btn.prop('disabled', false);
+                    btn.html(btnOldHtml);
+                },
+            });
+        };
+
+        var table = $('#tblrecord').DataTable({
+            'responsive': true,
+            "order": [[3, 'desc']],
+            "columnDefs": [{
+                "targets": [0, 5, 6],
+                "orderable": false
+            }]
+        });
+
+        $('#tblrecord').on('click', '.btnHistory', function () {
+            var url = $(this).data('url');
+            NominationHistory(url);
+        });
+
+        var NominationHistory = function (url) {
+            $(document).ajaxStart(function () {
+                $('#spinner-overlay').html("<h1 class='display-1'><i class='fa fa-spinner fa-pulse' id='spinner-overlaytext' /></i></h1>");
+                //$('#spinner-overlay').html("<span class='spinner-border' id='spinner-overlaytext' role='status' aria-hidden='true'></span>");
+                $('#spinner-overlay').show();
+            });
+            $.ajax({
+                url: url,
+                type: 'GET',
+                cache: false,
+                success: function (data) {
+                    $('#modalHistoryDialog').html(data);
+                },
+                error: function () {
+                    alert("Error occured..!!");
+                },
+                complete: function () {
+                    $('#spinner-overlay').hide();
+                },
+            });
+        };
+
+        $('.btnExportExcel').on('click', function () {
+            alert('testing');
+            url = $(this).data('url');
+            $.ajax({
+                type: "POST",
+                contentType: "application.json; charset=utf-8",
+                url: url,
+                success: function (response) {
+                    var blob = new Blob([response], { type: 'application/ms-excel' });
+                    var link = URL.createObjectURL(blob);
+                    var a = $("<a />");
+                    a.attr("download", "NomineesList_" + new Date().toLocaleDateString() + ".xls");
+                    a.attr("href", link);
+                    $("body").append(a);
+                    a[0].click();
+                    $("body").remove(a);
+                }
+            });
+        });
+
+    });
+
+</script>
+
+
+

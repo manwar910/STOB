@@ -1,0 +1,251 @@
+﻿@using STOBDataLayer.ViewModels
+@model IEnumerable<NominationVM>
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="table-responsive pb-4">
+    <table class="table table-hover pb-4 table-valign-middle">
+        <thead>
+            <tr>
+                <th>Award</th>
+                <th>Award Type</th>
+                @if (ViewBag.type == "Team")
+                {
+                    <th>Team Name</th>
+                }
+                <th>Current Status</th>
+                <th>Created On</th>
+                <th class="text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ev in Model)
+            {
+                //var nomCurrentStatus = ev.NominationStatuses.LastOrDefault();
+                //var nomCreateDate = ev.NominationStatuses.FirstOrDefault(n => n.STAT_ID == 1).DATE;
+
+                <tr id="row_@ev.NOMN_ID">
+                    <td>@ev.Award_Name (@ev.NOMN_ID)</td>
+                    <td>@ev.Award_Type</td>
+                    @if (ViewBag.type == "Team")
+                    {
+                        <td>@ev.TEAM_NM</td>
+                    }
+                    <td>
+                        @{
+                            if (ev.STAT_ID == 1)     //Drafted
+                            {
+                                <i class="fa fa-exclamation text-info"></i> <span> @ev.STAT_TXT</span>
+                            }
+                            else if (ev.STAT_ID == 2)    //Submitted
+                            {
+                                <i class="fa fa-paper-plane text-primary"></i> <span> @ev.STAT_TXT</span>
+                            }
+                            else if (ev.STAT_ID == 3)    //SentForReview
+                            {
+                                <i class="fa fa-refresh text-primary"></i> <span> @ev.STAT_TXT</span>
+                            }
+                            else if (ev.STAT_ID == 4)    //Modified
+                            {
+                                <i class="fa fa-edit text-success"></i> <span> @ev.STAT_TXT</span>
+                            }
+                            else if (ev.STAT_ID == 5)    //BuApproved
+                            {
+                                <i class="fa fa-check text-success"></i> <span> @ev.STAT_TXT</span>
+                            }
+                            else if (ev.STAT_ID == 6)    //AdmApproved
+                            {
+                                <i class="fa fa-check-circle text-success"></i> <span> @ev.STAT_TXT</span>
+                            }
+                            else if (ev.STAT_ID == 7)    //Rejected
+                            {
+                                <i class="fa fa-ban text-danger"></i>
+                                <span> @ev.STAT_TXT</span>
+                                <button class="btn btn-default rounded-pill shadow-sm btn-sm float-right mr-3 btnReason" data-reason="@ev.COMMENT" data-target="#reasonModal" data-toggle="modal">
+                                    <i class="fa fa-question text-success"></i>
+                                </button>
+                            }
+                        }
+                        <span class="d-block text-xs text-muted" style="margin-top:-5px;">@ev.STAT_BY</span>
+                    </td>
+                    <td>@ev.DATE.ToShortDateString()</td>
+
+                    <td class="text-center">
+
+                        @if (ev.STAT_ID == 1)   //Save
+                        {
+                            <a href="#" onclick="ClickSubmit(@ev.NOMN_ID)"> <span id="sp_@ev.NOMN_ID" class="btn btn-success btn-sm btnClickSubmit">Submit</span></a>
+                            @PutButtons(ev.Award_Type, ev.NOMN_ID)
+                        }
+                        else if (ev.STAT_ID == 3)    //Review
+                        {
+                            @PutButtons(ev.Award_Type, ev.NOMN_ID)
+                        }
+                        else if (ev.STAT_ID == 2 || ev.STAT_ID == 4)
+                        {
+                            <span class="badge badge-outline-danger">In-Progress</span>
+                        }
+                        @PrintButton(ev.NOMN_ID)
+                        <div class="btn-group dropdown">
+                            <button class="dropdown-toggle btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="window">
+                                Detail
+                            </button>
+                            <div class="dropdown-menu p-4" style="min-width: 250px !important;">
+                                <table class="table table-sm table-hover">
+                                    <tr class="bg-light">
+                                        <th>Nominee</th>
+                                        <th>Title</th>
+                                        <th>Department</th>
+                                        <th>Exemption</th>
+                                        <th>Email</th>
+                                    </tr>
+                                    @foreach (var n in ev.Nominees)
+                                    {
+                                        <tr>
+                                            <td>@n.FIRST_NM @n.LAST_NM</td>
+                                            <td>@n.TITLE_TXT</td>
+                                            <td>@n.BU_Dept</td>
+                                            <td>@n.EXEMPT_CD</td>
+                                            <td>@n.EMAIL</td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Delete Confirmation</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                Are you sure to delete this Nomination?
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" type="button" class="btn btn-default">Cancel</button>
+                <button data-dismiss="modal" id="btnContinueDelete" type="button" class="btn btn-primary">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reasonModal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Reason of Rejection</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <span id="txtReasonView">
+
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@helper PutButtons(string AwardType, int NominationId)
+{
+    if (AwardType == "Team")
+    {
+        <a href="@Url.Action("EditByNomnr_Team", "Nomination", new { nomId = NominationId })">
+            <span class="btn btn-success btn-sm ">
+                <i class="fa fa-pencil" title="Edit Nomination"></i> Edit
+            </span>
+        </a>
+        @DeleteButton(NominationId)
+    }
+    else if (AwardType == "Individual")
+    {
+        <a href="@Url.Action("EditByNomnr_Ind", "Nomination", new { nomId = NominationId })">
+            <span class="btn btn-success btn-sm ">
+                <i class="fa fa-pencil" title="Edit Nomination"></i> Edit
+            </span>
+        </a>
+        @DeleteButton(NominationId)
+    }
+}
+
+@helper DeleteButton(int NominationId)
+{
+    <a href="#" class="btn btn-danger btn-sm btnDelete" data-target="#deleteModal" data-toggle="modal"
+       data-path="@Url.Action("DeleteNomination", "Nomination", new { nomId = NominationId })">
+        <i class="fa fa-trash" title="Delete Nomination"></i> Delete
+    </a>
+}
+@helper PrintButton(int NominationId)
+{
+    <a href="@Url.Action("Rep_Nomination", "Home", new { NominationId = NominationId, page="AddNomination" })" class="btn btn-sm btn-secondary" title="Print"><i class="fa fa-print"></i> Print </a>
+}
+
+<script type="text/javascript">
+    $('.btnReason').on('click', function () {
+        var reason = $(this).data('reason');
+        $(".modal-body #txtReasonView").html(reason);
+    });
+
+    //$('.dropdown').hover(function () {
+    //    $(this).find('.dropdown-toggle').trigger('click');
+    //});
+    var path_to_delte;
+    $(".btnDelete").click(function (e) {
+        path_to_delete = $(this).data('path');
+    });
+    $('#btnContinueDelete').click(function () {
+        $.ajax({
+            type: "post",
+            url: path_to_delete,
+            success: function (response) {
+                window.location.href = response.redirectToUrl;
+            },
+            error: function (xhr, err) {
+                var jsonResp = jQuery.parseJSON(xhr.responseText);
+                alert(xhr.status + ' : ' + jsonResp.Message);
+            }
+        });
+    });
+
+
+    function ClickSubmit(id) {
+        //var btn = $('#btnClickSubmit').html();
+        var btn = $("#sp_" + id).html();
+        $("#sp_" + id).prop('disabled', true);
+        $("#sp_" + id).html("<i class='fa fa-spinner fa-pulse'/></i>&nbsp; please wait ...");
+        var url = '/Home/Nomination/Submit';
+        debugger
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: JSON.stringify({ 'NomId': id }),
+            contentType: 'application/json;charset=utf-8',
+            success: function (data) {
+                if (data.success) {
+                    window.location.href = "/Home/Nomination/Add";
+                }
+                else if (!data.success) {
+                    alert("Error occured..!!")
+                }
+            },
+            error: function () {
+                alert("Error occured..!!");
+            },
+        });
+    }
+
+    function dropDownChange(lblErrorId) {
+        $("#" + lblErrorId).css("display", "none");
+    }
+
+</script>

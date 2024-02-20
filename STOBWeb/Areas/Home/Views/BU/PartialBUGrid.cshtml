@@ -1,0 +1,75 @@
+﻿
+@model STOBWeb.ViewModals.BUViewModelList
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="table-responsive pb-5 pt-3">
+    <table id="tblrecord" class="table table-sm table-hover table-valign-middle">
+        <thead>
+            <tr class="bg-gray-light">
+                <th>Name</th>
+                <th>Departments</th>
+                <th class="text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ev in Model.BU)
+            {
+            <tr id="row_@ev.BU_ID">
+                <td>@ev.BU_NM</td>
+                <td>
+                    @{ int num = 0;
+                        var buDepts = Model.BU_DEPT.Where(x => x.BU_ID == ev.BU_ID);
+                    }
+                    @foreach (var dep in buDepts)
+                    {
+                        <span>
+                            @{
+                                @dep.BU_DEPT
+                                num = num + 1;
+                                if (num > 0 && num < buDepts.Count())
+                                {<span>,</span>
+                                }
+                            }
+                        </span>
+                    }
+                </td>
+                <td class="text-center" style="min-width:100px!important;">
+                    <a href="@Url.Action("Edit", "BU", new { buId = ev.BU_ID })" class="btn btn-warning btn-sm"><i class="fa fa-pencil"></i> <span class="btnLabel">Edit</span></a>
+                    <button type="button" data-url="@Url.Action("Delete","BU", new {Id = ev.BU_ID})"
+                            data-ret="@Url.Action("Add","BU")" class="btn btn-danger btn-sm btnDelete">
+                        <i class="fa fa-trash"></i> <span class="btnLabel">Delete</span>
+                    </button>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script src="~/Customization/Bootstrap DataTable/js/dataTables.bootstrap4.min.js"></script>
+
+<script type="text/javascript">
+
+    $('.btnDelete').click(function (e) {
+        var url_to_return = $(this).data('ret');
+        var url_to_delete = $(this).data('url');
+
+        $(this).prop('disabled', true);
+        $(this).html("<i class='fa fa-spinner fa-pulse'/></i>");
+
+        $.ajax({
+            type: "post",
+            url: url_to_delete,
+            success: function (data) {
+                window.location.href = url_to_return;
+            },
+            error: function (xhr, err) {
+                var jsonResp = jQuery.parseJSON(xhr.responseText);
+                alert(xhr.status + ' : ' + jsonResp.Message);
+            }
+        });
+    });
+
+</script>

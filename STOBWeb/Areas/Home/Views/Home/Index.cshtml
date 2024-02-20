@@ -1,0 +1,284 @@
+﻿
+@using STOBWeb.Areas.Home.Controllers
+@{
+    var UserRoles = Roles.GetRolesForUser();
+    //var referenceRole = UserRoles.Contains("AdminRole");
+    var controller = ViewContext.Controller as BaseController;
+    var currentVersion = controller.GetCurrentVersion();
+    var lastUpdatedDate = controller.GetlastUpdatedDate();
+    var username = controller.GetUserName();
+}
+@using STOBEntities.Models;
+@model DashBoardDTO
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>ABC Company </title>
+
+    <link href="~/Content/toastr.css" rel="stylesheet" />
+    <script src="~/Scripts/toastr.min.js"></script>
+</head>
+<body>
+    <div class="headingHome">
+        <div class="headingText">
+            <i class="fa fa-dashboard"></i>
+            Dashboard
+        </div>
+        <div class="form-group">
+            <div class="custom-control custom-switch float-right">
+                <input type="checkbox" class="custom-control-input" id="toggleNominations">
+                <label class="custom-control-label text-md align-middle" for="toggleNominations">Nominations</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="tab-content tab-transparent-content">
+                <div class="tab-pane fade show active" id="business-1" role="tabpanel" aria-labelledby="business-tab">
+                    <div class="row mb-2">
+                        <div class="col-sm-6 col-md-4 col-xl mb-4">
+                            <div class="card shadow cardLink bg-primary">
+                                <div class="card-body">
+                                    <i class="fa fa-trophy"></i>
+                                    <span class="display-4 font-weight-bold">
+                                        @Model.TotalCounts
+                                    </span>
+
+                                    <h3 style="font-weight:300;">Nominations</h3>
+                                    <a onclick="loadNominationsTable(0)" class="stretched-link"></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-xl mb-4">
+                            <div class="card shadow cardLink bg-info">
+                                <div class="card-body">
+                                    <i class="fa fa-exclamation"></i>
+                                    <span class="display-4 font-weight-bold">
+                                        @Model.TotalDraft
+                                    </span>
+                                    <h3 style="font-weight:300;">Drafted</h3>
+                                    <a onclick="loadNominationsTable(1)" class="stretched-link"></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-xl mb-4">
+                            <div class="card shadow cardLink bg-maroon">
+                                <div class="card-body">
+                                    <i class="fa fa-paper-plane"></i>
+                                    <span class="display-4 font-weight-bold">
+                                       @Model.ToTalSubmitted
+                                    </span>
+                                    <h3 style="font-weight:300;">Submitted</h3>
+                                    <a onclick="loadNominationsTable(2)" class="stretched-link"></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-xl mb-4">
+                            <div class="card shadow cardLink bg-success">
+                                <div class="card-body">
+                                    <i class="fa fa-check"></i>
+                                    <span class="display-4 font-weight-bold">
+                                        @Model.ToTalApproved
+                                    </span>
+                                    <h3 style="font-weight:300;">Approved</h3>
+                                    <a onclick="loadNominationsTable(5)" class="stretched-link"></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-xl mb-4">
+                            <div class="card shadow cardLink bg-danger">
+                                <div class="card-body">
+                                    <i class="fa fa-ban"></i>
+                                    <span class="display-4 font-weight-bold">
+                                        @Model.ToTalRejected
+                                    </span>
+                                    <h3 style="font-weight:300;">Rejected</h3>
+                                    <a onclick="loadNominationsTable(7)" class="stretched-link"></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row mb-3 justify-content-center">
+                        <div class="col-3">
+                            <div class="card shadow cardLink bg-olive">
+                                <div class="card-body">
+                                    <i class="fa fa-refresh"></i>
+                                    <span class="text-xl font-weight-bold">
+                                        @Model.ToTalReviewSent
+                                    </span>
+                                    <h5 style="font-weight:400;">ReviewSent</h5>
+                                    <a onclick="loadNominationsTable(3)" class="stretched-link"></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="card shadow cardLink bg-olive">
+                                <div class="card-body">
+                                    <i class="fa fa-edit"></i>
+                                    <span class="text-xl font-weight-bold">
+                                        @Model.ToTalModified
+                                    </span>
+                                    <h5 style="font-weight:400;">Modified</h5>
+                                    <a onclick="loadNominationsTable(4)" class="stretched-link"></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+                    <div class="row mb-4">
+                        <div class="col-sm-12">
+                            <div class="bg-gray-light p-3 rounded">
+                                <span class="text-lg">Nominations List</span>
+                                <div class="float-right">
+                                    <div class="btn-group float-right">
+                                        <button type="button" class="btn ml-2 btn-sm btn-default shadow dropdown-toggle" data-toggle="dropdown">
+                                            <i class="fa fa-print text-sm text-green"></i> Report By Award Type
+                                        </button>
+                                        <div class="dropdown-menu" id="partialDepartments">
+                                            <a class="dropdown-item" href="@Url.Action("Rep_NominationsByType", "Home", new {type="Individual"})">Individual</a>
+                                            <a class="dropdown-item" href="@Url.Action("Rep_NominationsByType", "Home", new {type = "Team"})">Team</a>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group float-right">
+                                        <button type="button" class="btn ml-2 btn-sm btn-default shadow dropdown-toggle" data-toggle="dropdown">
+                                            <i class="fa fa-file-excel-o text-sm text-green"></i> Export to Excel
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a href="#" onclick="exportToExcelAllApproved('@Url.Action("ExportToExcelAllApproved", "Home")');" class="dropdown-item" title="Export to Excel">All Approved </a>
+                                        </div>
+                                    </div>
+
+                                    @*<a href="#" id="btnexporttoexcel" onclick="exportToExcel()" class="btn ml-2 btn-primary shadow btn-sm" title="Export to Excel"><i class="fa fa-file-excel-o"></i> <span class="btnLabel">Export to Excel</span></a>*@
+                                    @*<a class="btn btn-success btn-sm ml-2 shadow" href="@Url.Action("Exporttopdf","Home")" title="Export to PDF"><i class="fa fa-file-pdf-o"></i> <span class="btnLabel">PDF Export</span></a>*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="partialsDraftsList" class="pb-4 pr-2 pl-2">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card card-light">
+                        <div class="card-header">
+                            <h3 class="text-center">Graphical Overview</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    @Html.Partial("_NominationAwardgraph")
+                                </div>
+                                <div class="col-md-6">
+                                    <div id="partialsGraphlist">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
+@if (TempData["ApprovedMessage"] != null)
+{
+    <script type="text/javascript">
+               toastr.success("@TempData["ApprovedMessage"]");
+    </script>
+}
+else if (TempData["RejectedMessage"] != null)
+{
+    <script type="text/javascript">
+               toastr.success("@TempData["RejectedMessage"]");
+    </script>
+}
+else if (TempData["SubmitMessage"] != null)
+{
+    <script type="text/javascript">
+               toastr.success("@TempData["SubmitMessage"]");
+    </script>
+}
+else if (TempData["UpdatedMessage"] != null)
+{
+    <script type="text/javascript">
+               toastr.success("@TempData["UpdatedMessage"]");
+    </script>
+}
+else if (TempData["ReviewSuccess"] != null)
+{
+    <script type="text/javascript">
+               toastr.success("@TempData["ReviewSuccess"]");
+    </script>
+}
+else if (TempData["NominationToggle"] != null)
+{
+    <script type="text/javascript">
+               toastr.success("@TempData["NominationToggle"]");
+    </script>
+}
+
+
+
+<script>
+    function exportToExcelAllApproved(url) {
+        $.ajax({
+            type: "POST",
+            contentType: "application.json; charset=utf-8",
+            url: url,
+            success: function (response) {
+                var blob = new Blob([response], { type: 'application/ms-excel' });
+                var downloadurl = URL.createObjectURL(blob);
+                var a = document.createElement("a");
+                a.href = downloadurl;
+                a.download = "Report.xls";
+                document.body.appendChild(a);
+                a.click();
+            }
+        });
+        return false;
+    }
+
+    $(function () {
+        $('#toggleNominations').prop('checked', @ViewBag.IsEnabled);
+        loadNominationsTable(0);
+        $('#partialsGraphlist').load("@Url.Action("Nominationgraph", "Home", new { StatusId = 0 })");
+    });
+
+
+    $('#toggleNominations').change(function () {
+        var out = $(this).is(':checked');
+        var url = "@Url.Action("ToggleNominations", "Home")" + "?toggle=" + out;
+        $.ajax({
+            url: url,
+            type: 'POST',
+            cache: false,
+            success: function (data) {
+                loadNominationsTable(0);
+            },
+        });
+    });
+
+    function loadNominationsTable(id) {
+        var url = "@Url.Action("NominationListPartials", "Home")" + "?StatusId=" + id;
+        var loader = "<h2 class='text-center text-success'><i class='fa fa-spinner fa-pulse'/></i>&nbsp; Loading...</h2>";
+        $.ajax({
+             url: url,
+             beforeSend: function (data) {
+                 $('#partialsDraftsList').html(loader);
+             },
+            success: function (data) {
+                $('#partialsDraftsList').html(data);
+            },
+        });
+    }
+
+</script>

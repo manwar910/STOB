@@ -1,0 +1,110 @@
+﻿@using STOBDataLayer.Model_DTO
+@model BUViewModelDTO
+@{
+    ViewBag.Title = "New BU";
+}
+
+<link href="~/Content/toastr.css" rel="stylesheet" />
+<script src="~/Scripts/toastr.min.js"></script>
+
+<div class="heading">
+    <div class="headingIcon">
+        <i class="fa fa-plus p-2"></i>
+    </div>
+    <div class="headingText">
+        New BU Head
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body bg-light rounded">
+        @using (Html.BeginForm("Add", "BU", FormMethod.Post, new { id = "frmNomination" }))
+        {
+            @Html.AntiForgeryToken()
+            @*@Html.ValidationSummary("", new { @class = "text-danger" })*@
+
+        <div class="row justify-content-center pr-sm-5 pl-sm-5">
+            <div class="col-xl-4 col-md-5 col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.BU_NM, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.BU_NM, ViewBag.employees as List<SelectListItem>, new { @class = "form-control", style = "height: 35px;", id = "ddlEmp" })
+                    @Html.ValidationMessageFor(m => m.BU_NM, null, new { @class = "text-sm text-danger" })
+
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-5 col-sm-6">
+                <div class="form-group ">
+                    @Html.LabelFor(m => m.BU_EMAIL, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.BU_EMAIL, new { @class = "form-control", @readonly = "readonly", style = "height: 35px;", id = "txtEmail" })
+                    @Html.ValidationMessageFor(m => m.BU_EMAIL, null, new { @class = "text-sm text-danger" })
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-5 col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.BU_DEPT, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.BU_DEPT, new { @class = "form-control", @readonly = "readonly", style = "height: 35px;", id = "txtDept" })
+                    @Html.ValidationMessageFor(m => m.BU_DEPT, null, new { @class = "text-sm text-danger" })
+                </div>
+            </div>
+        </div>
+            <div class="row justify-content-center mt-3">
+                <div class="col-md-5 text-center">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btnSubmit"><i class="fa fa-save"></i> <span class="">Save</span></button>
+                        <button type="reset" class="btn btn-default"><i class="fa fa-times"></i> Cancel</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="card-footer bg-white pt-3 pr-sm-5 pl-sm-5">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div id="partialsList" style="min-height:250px;"> </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@if (TempData["Message"] != null)
+{
+    <script type="text/javascript">
+               toastr.success("@TempData["Message"]");
+    </script>
+}
+
+
+<script type="text/javascript">
+
+    $('#frmNomination').submit(function () {
+        if ($(this).valid()) {
+            $('.btnSubmit').prop('disabled', true);
+            $('.btnSubmit').html("<i class='fa fa-spinner fa-pulse'/></i>&nbsp; please wait ...");
+        }
+        return true; // return false to cancel form action
+    });
+
+</script>
+
+@section scripts{
+    <script>
+        $(function () {
+            $('#partialsList').load("@Url.Action("PartialList", "BU")");
+        });
+        $('#ddlEmp').on('change', function () {
+            var allValue = $(this).val();
+            var email = allValue.split(',')[0];
+            var dept = allValue.split(',')[1];
+            debugger
+            $('#txtEmail').val(email);
+            $('#txtDept').val(dept);
+        });
+
+    </script>
+}
+
+
+
+

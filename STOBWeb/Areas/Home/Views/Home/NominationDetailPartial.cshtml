@@ -1,0 +1,69 @@
+﻿@model STOBDataLayer.Models.Nominations
+@{ 
+    var nominees = Model.Nominees.Select(n=>n.FIRST_NM + " " + n.LAST_NM).ToList();
+    var strNominees = String.Join(",", nominees);
+}
+
+<div class="modal-content">
+    <div class="modal-header bg-gradient-primary">
+        <h4 class="modal-title">Nomination History</h4>
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+    </div>
+    <div class="modal-body pr-5 pl-5">
+        <div class="row mb-3">
+            <table class="table table-sm no-border" style="width:100%!important;">
+                <tr>
+                    <td style="width:15%">Nominator</td>
+                    <th style="width:25%">@Model.NOMNR_NM</th>
+                    <td>Award</td>
+                    <th>@Model.Award.AWARD_NM [@Model.Award.AWARD_TYPE]</th>
+                    <td rowspan="2" class="text-right">
+                        <a href="@Url.Action("Rep_NominationHistory", "Home", new { NominationId = Model.NOMN_ID })" class="btn btn-lg bg-white btnPrintHistory" title="Print History">
+                            <i class="fa fa-print text-success"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Created On</td>
+                    <th>@Model.NOMN_DT.ToLongDateString() </th>
+                    <td>Nominees</td>
+                    <th>@strNominees</th>
+                </tr>
+            </table>
+        </div>
+        <table id="tblrecord" class="table table-sm table-hover table-valign-middle pb-4 pt-2" style="width:100%!important;">
+            <thead>
+                <tr class="bg-light">
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>By</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var n in Model.NominationStatuses)
+                {
+                    <tr>
+                        <td>
+                            @n.DATE.ToShortDateString()
+                            <span class="d-block text-xs text-muted" style="margin-top:-5px;">@n.DATE.ToShortTimeString()</span>
+                        </td>
+                        <td>
+                            @n.Status.STAT_TXT
+                        </td>
+                        <td>
+                            @n.BY
+                        </td>
+                        <td>
+                            @n.COMMENT
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            </table>
+        </div>
+    <div class="modal-footer">
+        <button type="button" class="close float-right" data-dismiss="modal"><span aria-hidden="true">Close</span></button>
+    </div>
+</div>
+

@@ -1,0 +1,106 @@
+﻿@using STOBEntities.Models;
+@model Associate_Awards_Nominations
+@{
+    ViewBag.Title = "View Nomination";
+}
+
+<style type="text/css">
+    body {
+        font-size: 10pt;
+    }
+
+    .ui-autocomplete {
+        overflow: auto;
+        max-height: 200px;
+    }
+</style>
+
+
+
+
+<form id="frmNomination" asp-action="Approve" asp-controller="Home" method="post">
+    <div asp-validatioin-summary="All" class="text-danger"></div>
+    @Html.HiddenFor(m => m.LastName)
+    @Html.HiddenFor(m => m.NominationId)
+    @Html.HiddenFor(m => m.CreatedBy)
+    @Html.HiddenFor(m => m.CreatedOnUtc)
+    <div class="panel-body">
+        <table class="table table-hover table-responsive">
+            <tr class="form-group">
+                <td>Select an Award: </td>
+                <td>
+                    @Html.DropDownListFor(M => M.associateAwardlist, new SelectList(Model.associateAwardlist, "Value", "Text"), new { @class = "form-control", })
+                </td>
+            </tr>
+
+            <tr class="form-group">
+                <td>Team Name: </td>
+                <td>
+                    @Html.TextBoxFor(m => m.TeamName, new { @class = "form-control", id = "txtteamname", name = "txtteamname" })
+                    @Html.ValidationMessageFor(m => m.TeamName)
+
+                </td>
+            </tr>
+
+
+            <tr class="form-group">
+                <td>Nominee Name: </td>
+                <td>
+                    @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", id = "txtNomineeName", name = "txtNomineeName" })
+                    @Html.ValidationMessageFor(m => m.FirstName)
+
+                </td>
+            </tr>
+            <tr class="form-group">
+                <td>Title: </td>
+                <td>
+                    @Html.TextBoxFor(m => m.Title, new { @class = "form-control", id = "txtTitle", disabled = "true" })
+                    @Html.ValidationMessageFor(m => m.Title)
+                </td>
+            </tr>
+
+            <tr class="form-group">
+                <td>Business Unit: </td>
+                <td>
+
+                    @Html.DropDownListFor(M => M.businessUnitNamesList, new SelectList(Model.businessUnitNamesList, "Value", "Text"), new { @class = "form-control", })
+
+                </td>
+            </tr>
+            <tr class="form-group">
+                <td>Exempt: </td>
+                <td>
+
+                    @Html.DropDownListFor(M => M.exemptlist, new SelectList(Model.exemptlist, "Value", "Text"), new { @class = "form-control", })
+
+
+                    @*@Html.TextBoxFor(m => m.Exempt, new { @class = "form-control" })*@
+                    @Html.ValidationMessageFor(m => m.Exempt)
+                </td>
+            </tr>
+
+            <tr class="form-group">
+                <td>Reason for Nomination: </td>
+                <td>
+
+                    @Html.TextAreaFor(m => m.Comments, new { @class = "form-control editorHtml" })
+                    @Html.ValidationMessageFor(m => m.Comments)
+                </td>
+            </tr>
+            <tr>
+                <td>  <span>Approve as Coordinator: </span> @Html.CheckBoxFor(m => m.IsCoordinator, true)</td>
+                <td>  <span>Approve as BuHead: </span> @Html.CheckBoxFor(m => m.IsBuHead, false)</td>
+            </tr>
+            <tr class="form-group">
+                <td>&nbsp;</td>
+                <td>
+
+                    <button type="submit" class="btn btn-primary">Approve</button>
+                    @*<button type="button" class="btn btn-primary" onclick="history.go(-1);return false;">Cancel</button>*@
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+</form>

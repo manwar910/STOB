@@ -1,0 +1,132 @@
+﻿@model IEnumerable<STOBDataLayer.Models.Nominees>
+@{
+    Layout = null;
+}
+
+<head>
+    <link href="~/Customization/AdminLTE/adminlte.min.css" rel="stylesheet" />
+    <link href="~/Customization/CustomCSS/PageDesign.css" rel="stylesheet" />
+    <script src="~/Customization/AdminLTE/adminlte.min.js"></script>
+
+    <style>
+
+        @@page {
+            size: auto; /*To display Layout option*/
+        }
+    </style>
+
+    <title>Nominations Report</title>
+    <script>
+        function printWindow() {
+            var is_chrome = function () { return Boolean(window.chrome); }
+            if (is_chrome) {
+                window.print();
+                setTimeout(function () { window.close(); }, 10000);
+            }
+            else {
+                window.print();
+                window.close();
+            }
+        }
+        printWindow();
+    </script>
+</head>
+
+<body>
+    <section class="content">
+        <div class="container-fluid" style="width:90% !important;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="invoice p-3 mb-3">
+                        <div class="row no-print pt-5">
+                            <div class="col-12">
+                                <a href="#" onclick="printWindow();" class="btn btn-default"><i class="fas fa-print"></i> Print</a>
+                                <a class="btn btn-success" href="#" onclick="exportToExcel('@Url.Action("ExportNomineesReport", "Home", new { dept = ViewBag.dept })');">Export to Excel</a>
+
+                                @if (ViewBag.page == "BuHead")
+                                {
+                                    <a href="@Url.Action("BuheadApprovalList", "Nomination")" class="btn btn-success float-right"><i class="fas fa-home"></i> Back to Nominations List</a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("Index", "Home")" class="btn btn-success float-right"><i class="fas fa-home"></i> Back to Nominations List</a>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-12 invoice-col">
+                                        <img src="~/Content/Assets/wsfg-logo.png" style="width:180px;height:45px;" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 text-right">
+                                <div class="invoice-title">
+                                    <h2 class="text-right">
+                                        Nominations List
+                                    </h2>
+                                    <h4 class="text-right">@{if (Model.Any())
+                                        { <span>@ViewBag.dept Department</span>} }</h4>
+                                    <span class="text-muted">@DateTime.Now</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col">
+                                <table class="table table-active table-striped">
+                                    <tr>
+                                        <th class="border-top-0">Name </th>
+                                        <th class="border-top-0">Title</th>
+                                        <th class="border-top-0">Exemption</th>
+                                        <th class="border-top-0">Email</th>
+                                        <th class="border-top-0">Department</th>
+                                        <th class="border-top-0">Nominator</th>
+                                        <th class="border-top-0">Award</th>
+                                        <th class="border-top-0">Team Name</th>
+                                    </tr>
+                                    @foreach (var nominee in Model)
+                                    {
+                                        <tr>
+                                            <td>@nominee.FIRST_NM @nominee.LAST_NM</td>
+                                            <td>@nominee.TITLE_TXT</td>
+                                            <td>@nominee.EXEMPT_CD</td>
+                                            <td>@nominee.EMAIL</td>
+                                            <td>@nominee.BU_Dept</td>
+                                            <td>@nominee.Nomination.NOMNR_NM</td>
+                                            <td>@nominee.Nomination.Award.AWARD_NM <br /><span class="text-xs">[@nominee.Nomination.Award.AWARD_TYPE]</span></td>
+                                            <td>@nominee.Nomination.TEAM_NM</td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+<script src="~/Scripts/jquery/jquery-3.3.1.min.js"></script>
+<script>
+    function exportToExcel(url) {
+        $.ajax({
+            type: "POST",
+            contentType: "application.json; charset=utf-8",
+            url: url,
+            success: function (response) {
+                var blob = new Blob([response], { type: 'application/ms-excel' });
+                var downloadurl = URL.createObjectURL(blob);
+                var a = document.createElement("a");
+                a.href = downloadurl;
+                a.download = "Report.xls";
+                document.body.appendChild(a);
+                a.click();
+            }
+        });
+        return false;
+    }
+
+</script>

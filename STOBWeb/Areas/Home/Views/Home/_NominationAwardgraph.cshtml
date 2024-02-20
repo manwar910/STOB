@@ -1,0 +1,71 @@
+﻿
+    <style>
+        #chartdiv {
+            width: 100%;
+            min-height: 250px;
+        }
+    </style>
+
+    <script src="~/Scripts/Chart.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js"></script>
+
+    <div class="box-body">
+        <div class="chart-container">
+            <canvas id="chartdiv" height="350"></canvas>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        $(function () {
+            $.ajax({
+                type: 'GET',
+                url: "@Url.Action("NominationAwardStatusgraphJson", "Home")",
+                success: function (chartsdata) {
+                    var awards = chartsdata.awards;
+                    $(function () {
+                        var chartname = "chartdiv";
+                        var ctx = document.getElementById(chartname).getContext('2d');
+                        var data = {
+                            labels: chartsdata.awards,
+                            datasets: [{
+                                backgroundColor: ["#878BB6", "#66FF00", "#FF8153", "#4ACAB4"],
+                                data: chartsdata.values
+                            }]
+                        };
+
+                        var options = {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            //legend: {
+                            //    display: false
+                            //},
+                            title: {
+                                display: true,
+                                text: 'Awards',
+                            },
+                            plugins: {
+                                labels: {
+                                    render: 'percentage',
+                                    fontColor: ['white', 'black', 'white', 'white', 'white'],
+                                    precision: 2
+                                }
+                            },
+                        };
+
+                        var myChart = new Chart(ctx, {
+                            options: options,
+                            data: data,
+                            type: 'pie'
+
+                        });
+                    });
+                },
+                error: function () {
+                    alert("Error loading data! Please try again.");
+                }
+            });
+        });
+
+
+    </script>

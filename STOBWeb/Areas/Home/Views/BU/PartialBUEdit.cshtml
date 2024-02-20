@@ -1,0 +1,69 @@
+﻿@model IEnumerable<STOBDataLayer.Models.BUDepartments>
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="table-responsive">
+    <table id="tblrecord" class="table table-sm table-hover table-valign-middle">
+        <thead>
+            <tr class="bg-gray-light">
+                <th class="border-top-0">Department</th>
+                <th class="text-center border-top-0">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ev in Model)
+            {
+                <tr>
+                    <td>@ev.BU_DEPT</td>
+                    <td class="text-center">
+                        <button type="button" data-url="@Url.Action("DeleteDept","BU", new {Id = ev.BU_DEPT_ID})"
+                                data-ret="@Url.Action("Edit","BU", new {buId = ev.BU_ID})" class="btn btn-danger btn-sm  btnDelete">
+                            <i class="fa fa-trash"></i> Delete
+                        </button>
+                    </td>
+
+                    @*@if (ev.IS_BU_DEPT == false)
+                    {
+                        <td class="text-center">
+                            <button type="button" data-url="@Url.Action("DeleteDept","BU", new {Id = ev.BU_DEPT_ID})"
+                                    data-ret="@Url.Action("Edit","BU", new {buId = ev.BU_ID})" class="btn btn-danger btn-sm  btnDelete">
+                                <i class="fa fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    }
+                    else
+                    {
+                        <td class="text-center"></td>
+                    }*@
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script src="~/Customization/Bootstrap DataTable/js/dataTables.bootstrap4.min.js"></script>
+
+<script type="text/javascript">
+
+    $('.btnDelete').click(function (e) {
+        var url_to_return = $(this).data('ret');
+        var url_to_delete = $(this).data('url');
+
+        $(this).prop('disabled', true);
+        $(this).html("<i class='fa fa-spinner fa-pulse'/></i>");
+
+        $.ajax({
+            type: "post",
+            url: url_to_delete,
+            success: function (data) {
+                window.location.href = url_to_return;
+            },
+            error: function (xhr, err) {
+                var jsonResp = jQuery.parseJSON(xhr.responseText);
+                alert(xhr.status + ' : ' + jsonResp.Message);
+            }
+        });
+    });
+
+</script>

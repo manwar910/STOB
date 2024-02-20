@@ -1,0 +1,161 @@
+﻿@model STOBDataLayer.ViewModels.NominationHistoryVM
+@{
+    Layout = null;
+    var awardType = Model.Award.AWARD_TYPE;
+}
+
+<head>
+    <link href="~/Customization/AdminLTE/adminlte.min.css" rel="stylesheet" />
+    <link href="~/Customization/CustomCSS/PageDesign.css" rel="stylesheet" />
+
+    <style type="text/css">
+        @@page {
+            size: auto; /*To display Layout option*/
+            margin: 1cm 1cm 1cm 1cm;
+        }
+
+        div.page {
+            page-break-after: always;
+            page-break-inside: avoid;
+        }
+
+        @@media print {
+            #header {
+                position: fixed;
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                color: #CCC;
+                padding: 8px;
+            }
+
+            #body {
+                position: relative;
+                top: 120px;
+            }
+        }
+    </style>
+
+    <title>Nomination History</title>
+    <script>
+        function printWindow() {
+            var is_chrome = function () { return Boolean(window.chrome); }
+            if (is_chrome) {
+                window.print();
+                setTimeout(function () { window.close(); }, 10000);
+                //give them 10 seconds to print, then close
+            }
+            else {
+                window.print();
+                window.close();
+            }
+        }
+        printWindow();
+    </script>
+</head>
+
+<body>
+    <section class="content">
+        <div class="container-fluid" style="width:90% !important;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="invoice p-3 mb-3">
+                        <div class="row no-print pt-5">
+                            <div class="col-12">
+                                <a href="#" onclick="printWindow();" class="btn btn-default"><i class="fas fa-print"></i> Print</a>
+                                <a href="@Url.Action("Index", "Home")" class="btn btn-success float-right"><i class="fas fa-home"></i> Back to Home</a>
+                            </div>
+                        </div>
+
+                        <div id="header">
+                            <div class="row border-bottom border-2">
+                                <div class="col-6">
+                                    <div class="row">
+                                        <div class="col-12 invoice-col">
+                                            <img src="~/Content/Assets/wsfg-logo.png" style="width:180px;height:45px;" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 text-right">
+                                    <div class="invoice-title">
+                                        <h2 class="text-right">
+                                            Nomination History
+                                        </h2>
+                                        <span class="text-muted">@DateTime.Now</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <table class="table table-sm table-borderless text-lg" style="width:100%!important;">
+
+                                        <tr>
+                                            <td>Award</td>
+                                            <td>
+                                                <strong>@Model.Nomination.Award.AWARD_NM</strong>
+                                                <span class="text-muted text-sm d-block">
+                                                    @awardType @{if (awardType == "Team")
+                                                        {<span>: @Model.Nomination.TEAM_NM</span>} }
+                                                </span>
+                                            </td>
+                                            <td>Created On</td>
+                                            <th>@Model.Nomination.NOMN_DT.ToLongDateString() </th>
+
+                                        </tr>
+                                        <tr>
+                                            <td>Nominator</td>
+                                            <td>
+                                                <strong>@Model.Nomination.NOMNR_NM</strong>
+                                                <span class="text-muted text-sm d-block">@Model.Nomination.NOMNR_EMAIL</span>
+                                            </td>
+                                            <td></td>
+                                            <th></th>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <h4>History Detail</h4>
+                                <table id="tblHistory" class="table table-sm table-hover table-valign-middle pb-4 pt-2" style="width:100%!important;">
+                                    <thead>
+                                        <tr class="bg-light">
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>By</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var n in Model.NominationStatuses)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @n.DATE.ToShortDateString()
+                                                    <span class="d-block text-xs text-muted" style="margin-top:-5px;">@n.DATE.ToShortTimeString()</span>
+                                                </td>
+                                                <td>
+                                                    @n.Status.STAT_TXT
+                                                </td>
+                                                <td>
+                                                    @n.BY
+                                                </td>
+                                                <td>
+                                                    @n.COMMENT
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+
+<script src="~/Customization/AdminLTE/adminlte.min.js"></script>

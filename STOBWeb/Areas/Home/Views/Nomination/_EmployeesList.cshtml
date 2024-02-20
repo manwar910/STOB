@@ -1,0 +1,15 @@
+﻿@model IEnumerable<STOBDataLayer.Models.Employees>
+
+@if (Model.Any())
+{
+    <option value="-1">--Choose Nominee--</option>
+
+    foreach (var emp in Model)
+    {
+        <option value="@emp.ID">@emp.LAST_NAME, @emp.FIRST_NAME (@emp.TITLE - @emp.DEPARTMENT) </option>
+    }
+}
+else
+{
+    <option value="-1">No employee exists</option>
+}

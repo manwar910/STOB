@@ -1,0 +1,95 @@
+﻿@using STOBEntities.Models;
+@model AwardName_Admin
+@{
+    ViewBag.Title = "New BU";
+}
+
+<div class="heading">
+    <div class="headingIcon">
+        <i class="fa fa-pencil p-2"></i>
+    </div>
+    <div class="headingText">
+        Edit Award
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body bg-light rounded">
+        @using (Html.BeginForm("Edit", "Award", FormMethod.Post, new { id = "frmAward" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.AWARD_ID, new { id = "Id" })
+            <div class="row justify-content-center">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Title </label>
+                        @Html.TextBoxFor(m => m.AWARD_NM, new { @class = "form-control", @required = "required", id = "txtTitle" })
+                        @Html.ValidationMessageFor(m => m.AWARD_NM, null, new { @class = "text-sm text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Type </label>
+                        @Html.DropDownListFor(m => m.AWARD_TYPE, ViewBag.AwardTypes as SelectList, new { @class = "form-control", id = "ddlAwardType" })
+                        @Html.ValidationMessageFor(m => m.AWARD_TYPE, null, new { @class = "text-sm text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Exemption </label>
+                        @Html.DropDownListFor(m => m.AWARD_EXEMPTION, ViewBag.exemptions as SelectList, new { @class = "form-control", id = "ddlExemptions" })
+                        @Html.ValidationMessageFor(m => m.AWARD_EXEMPTION, null, new { @class = "text-sm text-danger" })
+                    </div>
+                </div>
+
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    <div class="form-group">
+                        <label>Description </label>
+                        @Html.TextAreaFor(m => m.AWARD_DESC, new { @class = "form-control", id = "txtDesc", rows = "5" })
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-10 text-center">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btnSubmit" disabled><i class="fa fa-save"></i> Save</button>
+                        <button type="reset" class="btn btn-default btncancel"><i class="fa fa-times"></i> Cancel</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+@section scripts{
+    <script>
+        $('#ddlAwardType').on('change', function () {
+            var type = $(this).val();
+            if (type === "Team") {
+                $('#ddlExemptions').attr('disabled', 'disabled');
+            } else {
+                $('#ddlExemptions').removeAttr('disabled');
+            }
+        });
+
+        var changed = false;
+        $('#frmAward').change(function () {
+            changed = true;
+            $('.btnSubmit').prop('disabled', false);
+        });
+
+        $('#frmAward').submit(function () {
+            if (!changed) {
+                return false;
+            }
+            if ($(this).valid()) {
+                $('.btnSubmit').prop('disabled', true);
+                $('.btnSubmit').html("<i class='fa fa-spinner fa-pulse'/></i>&nbsp; Please wait ...");
+            }
+            return true; // return false to cancel form action
+        });
+    </script>
+}
