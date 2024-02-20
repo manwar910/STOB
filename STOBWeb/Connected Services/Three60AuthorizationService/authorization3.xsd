@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://Wsfg.Three60.Auth.Services/" elementFormDefault="qualified" targetNamespace="http://Wsfg.Three60.Auth.Services/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="https://apptest360adam.app.wsfgrp.net/360Auth/services/authorization.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Wsfg.Three60.Auth.Model" />
+  <xs:element name="AuthorizationRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="AccountName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Group" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="SearchSubGroups" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AuthorizationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="InGroup" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GroupResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/Wsfg.Three60.Auth.Model" minOccurs="0" name="Group" nillable="true" type="q1:ArrayOfGroup" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GroupRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="AccountName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="SearchSubGroups" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GroupUserRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="GroupName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="SearchSubGroups" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UserResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/Wsfg.Three60.Auth.Model" minOccurs="0" name="Users" nillable="true" type="q2:ArrayOfUser" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

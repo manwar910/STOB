@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="98caa537-6fb9-44b9-8e50-bd6ca141e7fe" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="https://apptest360adam.app.wsfgrp.net/360Auth/services/authorization.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="authorization.xsd" MetadataType="Schema" ID="31667ccf-7001-42ce-acb6-a428bcc0f58a" SourceId="1" SourceUrl="https://apptest360adam.app.wsfgrp.net/360Auth/services/authorization.svc?xsd=xsd1" />
+    <MetadataFile FileName="authorization.wsdl" MetadataType="Wsdl" ID="0e643055-21f9-4280-a9de-2d11fa656cbf" SourceId="1" SourceUrl="https://apptest360adam.app.wsfgrp.net/360Auth/services/authorization.svc?wsdl=wsdl0" />
+    <MetadataFile FileName="authorization1.xsd" MetadataType="Schema" ID="9a9b7637-d332-4623-a1d6-f5e3e163f316" SourceId="1" SourceUrl="https://apptest360adam.app.wsfgrp.net/360Auth/services/authorization.svc?xsd=xsd3" />
+    <MetadataFile FileName="AuthorizationService.wsdl" MetadataType="Wsdl" ID="6496e384-6e2e-47ee-affd-7972af66adb6" SourceId="1" SourceUrl="https://apptest360adam.app.wsfgrp.net/360Auth/services/authorization.svc?wsdl" />
+    <MetadataFile FileName="authorization2.xsd" MetadataType="Schema" ID="4ccff577-253d-4665-8e61-0484dffb03a5" SourceId="1" SourceUrl="https://apptest360adam.app.wsfgrp.net/360Auth/services/authorization.svc?xsd=xsd2" />
+    <MetadataFile FileName="authorization.disco" MetadataType="Disco" ID="a95bb9ee-cfbf-4854-8c0f-32dc3d142396" SourceId="1" SourceUrl="https://apptest360adam.app.wsfgrp.net/360Auth/services/authorization.svc?disco" />
+    <MetadataFile FileName="authorization3.xsd" MetadataType="Schema" ID="85f62b3d-6688-4d14-83cf-88cfbcbb54de" SourceId="1" SourceUrl="https://apptest360adam.app.wsfgrp.net/360Auth/services/authorization.svc?xsd=xsd0" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>
