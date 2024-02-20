@@ -1,0 +1,237 @@
+﻿body {
+    font-size: 11pt;
+}
+
+.spinner-border {
+    width:5rem!important;
+    height:5rem!important;
+}
+
+#spinner-overlay {
+    position: fixed; /* Sit on top of the page content */
+    display: none; /* Hidden by default */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    z-index: 9000; /* Specify a stack order in case you're using a different order for other elements */
+    cursor: pointer; /* Add a pointer on hover */
+}
+
+#spinner-overlaytext {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: white;
+    transform: translate(-50%, -50%);
+    margin:0;
+    text-align: center;
+}
+
+
+.modal.fade .modal-dialog {
+    -webkit-transition: -webkit-transform .3s ease-out;
+    -o-transition: -o-transform .3s ease-out;
+    transition: transform .3s ease-out;
+    -webkit-transform: scaleX(0) !important;
+    -ms-transform: scaleX(0) !important;
+    -o-transform: scaleX(0) !important;
+    transform: scaleX(0) !important;
+}
+
+.modal.show .modal-dialog {
+    -webkit-transform: scaleX(1) !important;
+    -ms-transform: scaleX(1) !important;
+    -o-transform: scaleX(1) !important;
+    transform: scaleX(1) !important;
+}
+
+.navcolor {
+    background-color: #0b86c4
+}
+
+.navbar-toggler-icon {
+    color: white !important;
+}
+
+.main-wrapper {
+    position: relative;
+    min-height: 100vh;
+}
+
+.footer {
+    color: white;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    padding-left: 3rem;
+    padding-right: 3rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    width: 100%;
+    margin-top: 3rem;
+    background-color: rgb(1, 135, 195);
+}
+
+.navbar-brand {
+    background: url('../../../../Content/Assets/wsfg-logo-white.png') no-repeat 0 0;
+    width: 15%;
+    min-height: 35px;
+    height: 35px;
+    margin-left: 2.5rem;
+    background-size: contain;
+}
+
+.invalid {
+    color: red;
+}
+
+.heading {
+    color: #74d700;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align:center;
+    padding-top:5rem;
+    padding-bottom:2rem;
+}
+
+.headingHome {
+    color: #74d700;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 5rem;
+    padding-bottom: 2rem;
+}
+
+.headingIcon {
+    background-color: #74d700 !important;
+    color: white;
+    width: 35px;
+    height: 35px;
+    font-size: 1.2rem;
+    font-weight: 300;
+    border-radius:50%;
+    display:inline-block;
+}
+.headingText {
+    padding-left:1rem;
+}
+
+.btn i {
+    font-size: 15px !important;
+}
+
+.btn-lg i {
+    font-size: 20px !important;
+}
+
+.btn-success {
+    background-color: #44ce42;
+    border-color: #44ce42;
+}
+
+.btn-lg {
+    padding: 0.5rem 1rem !important;
+    font-size: 1.25rem !important;
+    line-height: 1.5 !important;
+    border-radius: 0.3rem !important;
+}
+@media only screen and (max-width: 600px) {
+    .btnLabel {
+        display: none;
+    }
+}
+
+td, th {
+    padding-left: 15px!important;
+}
+.stretched-link {
+    cursor: pointer !important;
+}
+
+.card-body > i {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    transition: all .3s linear;
+    font-size: 70px;
+    top: 20px;
+    line-height: 1;
+    color: rgba(0,0,0,.15);
+    z-index: 0;
+}
+
+.cardLink {
+    border-radius: 0.3125rem !important;
+}
+
+    .cardLink:hover {
+        opacity: .75;
+    }
+
+    .cardLink > .card-body {
+        padding: 1rem !important;
+        padding: 1rem !important;
+    }
+
+.tab-content {
+    text-align: left !important;
+}
+
+.card-title {
+    text-transform: none !important;
+    color: inherit !important;
+}
+
+
+.ui-autocomplete {
+    position: absolute;
+    background: #f0f1f6;
+    top: 0;
+    left: 0;
+    cursor: default;
+    max-height: 200px;
+    color: black;
+    z-index: 2;
+    list-style-type: none;
+    /*height: 100px;*/
+    overflow-y: auto; /*If set to 'auto', will display scrollbars automatically*/
+    overflow-x: hidden;
+}
+
+.select2-selection__choice {
+    background-color: #007bff !important;
+    border-color: #006fe6 !important;
+}
+
+.select2-selection__choice__remove {
+    color: rgba(255,255,255,.7) !important;
+}
+
+/*Dual ListBox*/
+.bootstrap-duallistbox-container select {
+    /*font-size: 10pt !important;*/
+    padding: 4px!important;
+}
+
+.box2 label, .box1 label {
+    display: inline !important;
+}
+
+    label.labelRequired::after {
+        content: " *";
+        color: red;
+    }
+.bootstrap-duallistbox-container select {
+    width: 100%;
+    height: 180px!important;
+    padding: 0;
+}
+/*Dual ListBox*/
